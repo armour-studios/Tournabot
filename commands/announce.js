@@ -115,11 +115,9 @@ module.exports = {
       const pingingRole = pingRoleResult ? `<@&${pingRoleResult.role}>` : '@everyone';
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Tournament Announcement', iconURL: startggIcon }) // Start.gg Logo
         .setTitle(tournament.name)
         .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
         .setColor('#FF3636') // Start.gg Red
-        .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
         .setDescription(`${announceText}`)
         .addFields(
           { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },

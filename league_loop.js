@@ -177,11 +177,9 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
             .join('\n');
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: 'League Announcement', iconURL: startggIcon })
             .setTitle(tournament.name)
             .setURL(`https://start.gg/${tournament.url || 'tournament/' + tournament.slug}`)
             .setColor('#FF3636')
-            .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
             .setDescription(`${announceText}`)
             .addFields(
                 { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },

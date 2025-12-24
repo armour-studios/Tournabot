@@ -78,7 +78,9 @@ const commands = [
         .addSubcommand(subcommand => subcommand.setName('livefeed').setDescription('Test live match feed embeds').addStringOption(option => option.setName('url').setDescription('Tournament URL').setRequired(true))),
     new SlashCommandBuilder().setName('seed').setDescription('Generate tournament seeds for Rocket League')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .addSubcommand(subcommand => subcommand.setName('generate').setDescription('Generate seeds for an event').addStringOption(option => option.setName('url').setDescription('Start.gg event URL').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('generate').setDescription('Generate seeds for an event').addStringOption(option => option.setName('url').setDescription('Start.gg event URL').setRequired(true))),
+    new SlashCommandBuilder().setName('setup').setDescription('Automated server setup with channel creation')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 ]
     .map(command => command.toJSON());
 
