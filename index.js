@@ -45,15 +45,22 @@ client.login(token);
 //client.login(ALTDISCORDTOKEN); // Alternate token for testing client
 
 // On Discord client ready
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log(`Ready at ${convertEpochToClock(Date.now() / 1000, 'America/Los_Angeles', true)}`);
-  database.then(() => console.log('Connected to MongoDB')).catch(err => console.log(err));
-  client.user.setActivity('for t!help - v4.1.8', { type: 'WATCHING' });
 
-  // Loop for tracking and setting tournament reminders
-  // Comment this function out for development unrelated to it
-  remindLoop(client);
+  try {
+    await database;
+    console.log('Connected to MongoDB');
 
+    client.user.setActivity('for t!help - v4.1.8', { type: 'WATCHING' });
+
+    // Loop for tracking and setting tournament reminders
+    // Only start after database is connected
+    remindLoop(client);
+  } catch (err) {
+    console.error('CRITICAL: Failed to connect to MongoDB:', err);
+    process.exit(1); // Exit if we can't connect to the DB
+  }
 });
 
 // On bot being invited to a Discord server, send message
