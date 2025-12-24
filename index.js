@@ -106,7 +106,10 @@ client.on('guildCreate', guild => {
 
 // On message recieved, check for commands
 client.on('message', message => {
-  let prefix = PREFIX
+  if (message.author.bot) return;
+
+  let prefix = PREFIX || 't!';
+  console.log(`Message received: "${message.content}" from ${message.author.tag} in ${message.guild ? message.guild.name : 'DM'}. Current prefix: ${prefix}`);
 
   if (message.content.startsWith('t!help') || message.content.startsWith('t!set prefix')) {
     const command = message.content.slice(prefix.length).trim().split(/ +/).shift().toLowerCase();
