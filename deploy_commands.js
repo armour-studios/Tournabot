@@ -71,7 +71,10 @@ const commands = [
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addSubcommand(subcommand => subcommand.setName('link').setDescription('Link a league to track').addStringOption(option => option.setName('url').setDescription('The League URL').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('unlink').setDescription('Unlink a league').addStringOption(option => option.setName('url').setDescription('The League URL or Slug').setRequired(true).setAutocomplete(true)))
-        .addSubcommand(subcommand => subcommand.setName('list').setDescription('List linked leagues'))
+        .addSubcommand(subcommand => subcommand.setName('list').setDescription('List linked leagues')),
+    new SlashCommandBuilder().setName('test').setDescription('Admin testing commands')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .addSubcommand(subcommand => subcommand.setName('livefeed').setDescription('Test live match feed embeds').addStringOption(option => option.setName('url').setDescription('Tournament URL').setRequired(true)))
 ]
     .map(command => command.toJSON());
 
