@@ -26,10 +26,6 @@ Announces a given tournament with registration/event times and additional info.
 
 Access complete localization through customizable timezones and languages.
 
-:small_orange_diamond: **Matchmaking**
-
-Discord role-based matchmaking which enables users to specify whether or not they want to be pinged.
-
 :small_orange_diamond: **Tournament Searching**
 
 Search for start.gg tournaments by game directly in your server.
@@ -229,41 +225,6 @@ ${descriptions[index]}`)
   return localizationEmbed;
 }
 
-const generateMatchmakingEmbed = index => {
-  const label = '**Matchmaking**';
-  const descriptions = [`
-> \`/mm set <role>\`
-
-Sets the representative matchmaking role.
-`, `
-> \`/mm on\`
-
-Sets you active for matchmaking.
-`, `
-> \`/mm off\`
-
-Sets you inactive for matchmaking.
-`, `
-> \`/mm list\`
-
-Shows all users that are active for matchmaking (keep in mind that mentions in embeds do not ping users).
-`, `
-> \`/mm ping\`
-
-Pings all users that are active for matchmaking, deletes the mentions, and then sends a message related to the role. 
-`];
-  const examples = ['https://i.imgur.com/9QaaYOX.png', 'https://i.imgur.com/326Dds4.png', 'https://i.imgur.com/SlLeWsb.png', 'https://i.imgur.com/mEAJcD3.png', 'https://i.imgur.com/Oy5xx1M.png'];
-
-  const matchmakingEmbed = new EmbedBuilder()
-    .setColor('#00A3FF')
-    .setDescription(`
-${label}
-${descriptions[index]}`)
-    .setImage(examples[index])
-    .setFooter({ text: `Command ${index + 1} of 5`, iconURL: footerIcon });
-
-  return matchmakingEmbed;
-}
 
 const generateSearchEmbed = index => {
   const searchEmbed = new EmbedBuilder()
@@ -317,7 +278,6 @@ module.exports = {
   generateDQPingingEmbed: generateDQPingingEmbed,
   generateAnnounceEmbed: generateAnnounceEmbed,
   generateLocalizationEmbed: generateLocalizationEmbed,
-  generateMatchmakingEmbed: generateMatchmakingEmbed,
   generateSearchEmbed: generateSearchEmbed,
   generatePrefixEmbed: generatePrefixEmbed,
   generateInfoEmbed: generateInfoEmbed

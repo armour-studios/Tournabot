@@ -39,12 +39,6 @@ const commands = [
     new SlashCommandBuilder().setName('announce').setDescription('Announce tournaments with event information')
         .addStringOption(option => option.setName('url').setDescription('Tournament URL').setRequired(true))
         .addStringOption(option => option.setName('ping').setDescription('Whether to ping the role').addChoices({ name: 'Ping', value: 'ping' }, { name: 'No Ping', value: 'no' })),
-    new SlashCommandBuilder().setName('mm').setDescription('Improved role-based matchmaking')
-        .addSubcommand(subcommand => subcommand.setName('set').setDescription('Set the matchmaking role').addRoleOption(option => option.setName('role').setDescription('The role to use').setRequired(true)))
-        .addSubcommand(subcommand => subcommand.setName('on').setDescription('Go online for matchmaking'))
-        .addSubcommand(subcommand => subcommand.setName('off').setDescription('Go offline for matchmaking'))
-        .addSubcommand(subcommand => subcommand.setName('list').setDescription('List users online for matchmaking'))
-        .addSubcommand(subcommand => subcommand.setName('ping').setDescription('Ping online users for matchmaking')),
     new SlashCommandBuilder().setName('remind').setDescription('Toggle tournament reminders'),
     new SlashCommandBuilder().setName('search').setDescription('Search for upcoming tournaments by game')
         .addStringOption(option => option.setName('game').setDescription('The game to search for (Ultimate/Valorant)').setRequired(true).setAutocomplete(true)),
