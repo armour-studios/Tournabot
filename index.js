@@ -44,22 +44,36 @@ const dqPingingMap = new Map();
 client.login(token);
 //client.login(ALTDISCORDTOKEN); // Alternate token for testing client
 
+const mongoose = require('mongoose');
+
 // On Discord client ready
 client.once('ready', async () => {
   console.log(`Ready at ${convertEpochToClock(Date.now() / 1000, 'America/Los_Angeles', true)}`);
 
   try {
-    await database;
-    console.log('Connected to MongoDB');
+    console.log('Waiting for MongoDB connection...');
+    await database; // Waits for the initial connection promise
+
+    // Additional check to ensure the connection is actually 'open'
+    if (mongoose.connection.readyState !== 1) {
+      console.log('MongoDB connection established but not yet open. Waiting for open event...');
+      await new Promise((resolve, reject) => {
+        mongoose.connection.once('open', resolve);
+        mongoose.connection.once('error', reject);
+      });
+    }
+
+    console.log('Connected to MongoDB and ready for queries.');
 
     client.user.setActivity('for t!help - v4.1.8', { type: 'WATCHING' });
 
     // Loop for tracking and setting tournament reminders
-    // Only start after database is connected
     remindLoop(client);
   } catch (err) {
     console.error('CRITICAL: Failed to connect to MongoDB:', err);
-    process.exit(1); // Exit if we can't connect to the DB
+    // Log the readyState to help debug
+    console.log('MongoDB ReadyState:', mongoose.connection.readyState);
+    process.exit(1);
   }
 });
 
