@@ -1,7 +1,13 @@
 // Dependencies
 const Discord = require('discord.js');
 require('dotenv').config();
-const { PREFIX, DISCORDTOKEN, ALTDISCORDTOKEN } = process.env;
+const { PREFIX, DISCORDTOKEN, DISCORD_TOKEN, ALTDISCORDTOKEN } = process.env;
+const token = DISCORDTOKEN || DISCORD_TOKEN;
+
+if (!token) {
+  console.error('CRITICAL: Discord Token is missing! Please make sure DISCORDTOKEN is set in your environment variables.');
+}
+
 const database = require('./database/database');
 const urllib = require('urllib');
 const replaceall = require('replaceall');
@@ -35,7 +41,7 @@ const dqPingingMap = new Map();
 // Reminders + DQ Pinging are currently located in index.js for async tasking, however, I would like to seperate them entirely into seperate files/processes while still retaining async.
 
 // Initialize client
-client.login(DISCORDTOKEN);
+client.login(token);
 //client.login(ALTDISCORDTOKEN); // Alternate token for testing client
 
 // On Discord client ready
