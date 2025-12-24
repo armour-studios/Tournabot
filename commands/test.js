@@ -125,7 +125,7 @@ module.exports = {
             const placement = index + 1;
             if (placement <= 3) {
                 podiumList += `${medals[placement - 1]} **${player.name}**\n`;
-            } else {
+            } else if (placement <= 5) {
                 runnerUpList += `**${placement}.** ${player.name}\n`;
             }
         });
@@ -138,8 +138,16 @@ module.exports = {
             .setURL(`https://start.gg/${tournament.url}/event/${event.slug}`)
             .setTimestamp();
 
-        if (podiumList) standingsEmbed.addFields({ name: '🏆 Podium', value: podiumList, inline: false });
-        if (runnerUpList) standingsEmbed.addFields({ name: '🌟 Top 8', value: runnerUpList, inline: false });
+        if (podiumList) standingsEmbed.addFields({
+            name: '🏆 Podium',
+            value: podiumList + '\u200B',
+            inline: false
+        });
+        if (runnerUpList) standingsEmbed.addFields({
+            name: '🌟 Top 8',
+            value: runnerUpList,
+            inline: false
+        });
 
         await channel.send({ content: '**Example: Final Standings (Auto-Posted)**', embeds: [standingsEmbed] });
 

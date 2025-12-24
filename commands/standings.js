@@ -31,13 +31,26 @@ async function generateStandingsEmbed(event, url) {
 
       if (placement <= 3) {
         podiumList += `${medals[placement - 1]} **${name}**\n`;
-      } else {
+      } else if (placement <= 8) {
         runnerUpList += `**${placement}.** ${name}\n`;
       }
     });
 
-    if (podiumList) embed.addFields({ name: '🏆 Podium', value: podiumList, inline: false });
-    if (runnerUpList) embed.addFields({ name: '🌟 Top 8', value: runnerUpList, inline: false });
+    if (podiumList) {
+      embed.addFields({
+        name: '🏆 Podium',
+        value: podiumList + '\u200B', // Zero-width space for spacing
+        inline: false
+      });
+    }
+
+    if (runnerUpList) {
+      embed.addFields({
+        name: '🌟 Top 8',
+        value: runnerUpList,
+        inline: false
+      });
+    }
   }
 
   return embed;
