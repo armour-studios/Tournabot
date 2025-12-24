@@ -19,15 +19,26 @@ module.exports = {
             name
             tournament {
               name
+              images {
+                url
+                type
+              }
             }
             standings(query: {
               page: 1,
-              perPage: 10
+              perPage: 8
             }) {
               nodes {
                 placement
                 entrant {
                   name
+                  participants {
+                    user {
+                      images {
+                        url
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -45,20 +56,39 @@ module.exports = {
       const event = data.data.event;
       const standings = event.standings.nodes;
 
+      // Determine Thumbnail: Tournament Profile -> 1st Place User Image -> Default Logo
+      const tournamentImage = event.tournament.images.find(i => i.type === 'profile')?.url;
+      const winnerImage = standings[0]?.entrant?.participants[0]?.user?.images?.[0]?.url;
+      const thumbUrl = tournamentImage || winnerImage || footerIcon;
+
       const embed = new EmbedBuilder()
         .setAuthor({ name: 'Tournament Standings', iconURL: footerIcon })
-        .setTitle(`${event.tournament.name} - ${event.name}`)
+        .setTitle(`${event.tournament.name}`)
+        .setDescription(`**Event:** ${event.name}`)
         .setColor('#FF3636')
+        .setThumbnail(thumbUrl)
         .setURL(url);
 
       if (standings.length === 0) {
         embed.setDescription('No standings found for this event yet.');
       } else {
-        let description = '';
+        const medals = ['🥇', '🥈', '🥉'];
+        let podiumList = '';
+        let runnerUpList = '';
+
         standings.forEach(s => {
-          description += `**${s.placement}.** ${s.entrant.name}\n`;
+          const name = s.entrant.name;
+          const placement = s.placement;
+
+          if (placement <= 3) {
+            podiumList += `${medals[placement - 1]} **${name}**\n`;
+          } else {
+            runnerUpList += `**${placement}.** ${name}\n`;
+          }
         });
-        embed.setDescription(description);
+
+        if (podiumList) embed.addFields({ name: '🏆 Podium', value: podiumList, inline: false });
+        if (runnerUpList) embed.addFields({ name: '🌟 Top 8', value: runnerUpList, inline: false });
       }
 
       await interaction.editReply({ embeds: [embed] });
