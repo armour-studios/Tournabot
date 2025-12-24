@@ -31,9 +31,15 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
+    const linkRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL('https://github.com/armour-studios/Tournabot').setEmoji('💻'),
+      new ButtonBuilder().setLabel('Support Server').setStyle(ButtonStyle.Link).setURL('https://discord.gg/ssYPUk6Snc').setEmoji('🆘'),
+      new ButtonBuilder().setLabel('Vote').setStyle(ButtonStyle.Link).setURL('https://top.gg/bot/719283403698077708').setEmoji('🗳️')
+    );
+
     const helpMessage = await (interaction.reply ?
-      interaction.reply({ embeds: [generateHelpSelection(0)], components: [row], fetchReply: true, ephemeral: true }) :
-      interaction.channel.send({ embeds: [generateHelpSelection(0)], components: [row] }));
+      interaction.reply({ embeds: [generateHelpSelection(0)], components: [row, linkRow], fetchReply: true, ephemeral: true }) :
+      interaction.channel.send({ embeds: [generateHelpSelection(0)], components: [row, linkRow] }));
 
     const collector = helpMessage.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 300000 });
 

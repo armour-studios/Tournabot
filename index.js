@@ -57,6 +57,50 @@ for (const file of commandFiles) {
 // MongoDB Models
 // On interaction received (Slash Commands)
 client.on('interactionCreate', async interaction => {
+  if (interaction.isButton() && interaction.customId.startsWith('requestmod_')) {
+    const setId = interaction.customId.split('_')[1];
+
+    await interaction.deferReply({ ephemeral: true });
+
+    try {
+      // Query set info
+      const query = `query SetQuery($id: ID!) {
+        set(id: $id) {
+          fullRoundText
+          event { name tournament { name url slug } }
+          slots { entrant { name participants { user { id } } } }
+        }
+      }`;
+      const { queryAPI } = require('./functions');
+      const data = await queryAPI(query, { id: setId });
+
+      if (!data || !data.data || !data.data.set) {
+        return interaction.editReply('Could not find match data.');
+      }
+
+      const set = data.data.set;
+      const tournamentUrl = `https://start.gg/${set.event.tournament.url || 'tournament/' + set.event.tournament.slug}`;
+
+      const alertEmbed = new EmbedBuilder()
+        .setTitle('🚨 Moderator Requested')
+        .setColor('#FF0000') // Bright Red
+        .setDescription(`**Request by:** ${interaction.user}\n**Match:** ${set.slots[0].entrant.name} vs ${set.slots[1].entrant.name}\n**Round:** ${set.fullRoundText}\n**Event:** ${set.event.name}`)
+        .addFields({ name: 'Links', value: `[View Match](${tournamentUrl}) | [Bracket](${tournamentUrl}/event/${set.event.id})` })
+        .setTimestamp();
+
+      // Find Mod Channel (Look for #mod-requests or fallback to current)
+      const modChannel = interaction.guild.channels.cache.find(c => c.name.includes('mod-request') || c.name.includes('moderator')) || interaction.channel;
+
+      await modChannel.send({ content: '@here', embeds: [alertEmbed] });
+      await interaction.editReply('Moderators have been notified! 👮');
+
+    } catch (err) {
+      console.error(err);
+      await interaction.editReply('Error sending mod request.');
+    }
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   const { commandName } = interaction;

@@ -84,6 +84,7 @@ module.exports = {
                       tournaments(query: {page: $page, perPage: 3, filter: { past: true }}) {
                         nodes {
                           slug startAt name isOnline numAttendees
+                          images { url }
                           events {
                             name numEntrants
                             sets(sortType: RECENT, filters: { playerIds: [$playerIds] }) {
@@ -139,7 +140,8 @@ module.exports = {
               url: `https://start.gg/${node.slug}`,
               date: convertEpoch(node.startAt, cityTimezone),
               stats: eventInfo,
-              sets: setsList.slice(0, 5)
+              sets: setsList.slice(0, 5),
+              image: node.images && node.images.length > 0 ? node.images[0].url : null
             });
           }
         }
@@ -167,15 +169,17 @@ module.exports = {
       const generateEmbed = (index) => {
         const t = tournaments[index];
         const embed = new EmbedBuilder()
-          .setTitle(`${name} - ${t.name}`)
+          .setAuthor({ name: `Tournament Results: ${name}`, iconURL: imageurl || 'https://i.imgur.com/gUwhkw3.png' })
+          .setTitle(t.name)
           .setURL(t.url)
           .setColor(sideColor)
-          .setThumbnail(imageurl)
+          .setThumbnail(t.image || imageurl) // Use tournament thumb if available, else user image
           .addFields(
-            { name: 'Event Info', value: t.stats.map(e => `**${e.name}**: ${e.placement}/${e.total}`).join('\n') || 'N/A', inline: true },
-            { name: 'Recent Sets', value: t.sets.join('\n') || 'N/A', inline: true }
+            { name: '📊 Event Placements', value: t.stats.map(e => `**${e.name}**: ${e.placement}/${e.total}`).join('\n') || 'N/A', inline: false },
+            { name: '⚔️ Recent Sets', value: t.sets.join('\n') || 'N/A', inline: false }
           )
-          .setFooter({ text: `Tournament ${index + 1} of ${tournaments.length}`, iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+          .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+          .setTimestamp();
         return embed;
       };
 

@@ -37,6 +37,7 @@ async function checkLeagues(client) {
                             startAt
                             registrationClosesAt
                             url
+                            images { url type }
                             events {
                                 name
                                 startAt
@@ -114,27 +115,27 @@ async function announceTournament(client, guildID, tournament, leagueName) {
             .join('\n');
 
         const embed = new EmbedBuilder()
+            .setAuthor({ name: 'League Announcement', iconURL: 'https://i.imgur.com/v1hKkQ6.png' })
             .setTitle(tournament.name)
             .setURL(`https://start.gg/${tournament.url || 'tournament/' + tournament.slug}`)
-            .setColor('#222326')
-            .setDescription(`${announceText}\n\n**Registration closes on:** ${convertEpoch(tournament.registrationClosesAt, cityTimezone)}\n\n**Events:**\n${eventsInfo}`)
-            .setFooter({ text: 'TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+            .setColor('#FF3636')
+            .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || 'https://i.imgur.com/v1hKkQ6.png')
+            .setDescription(`${announceText}`)
+            .addFields(
+                { name: '📅 Registration Closes', value: convertEpoch(tournament.registrationClosesAt, cityTimezone), inline: true },
+                { name: '📍 Status', value: 'Open', inline: true },
+                { name: '🏆 Events', value: eventsInfo }
+            )
+            .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
+            .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+            .setTimestamp();
 
-        if (streams) embed.addFields({ name: 'Streams', value: streams });
+        if (streams) embed.addFields({ name: '📺 Streams', value: streams });
 
         // Localization
         const langResult = await languageModel.findOne({ guildid: guildID });
         if (langResult && langResult.language !== 'en') {
-            const translateUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(embed.data.description)}&langpair=en|${langResult.language}&de=random@gmail.com`;
-            try {
-                const res = await fetch(translateUrl);
-                const json = await res.json();
-                if (json.responseData && json.responseData.translatedText) {
-                    embed.setDescription(json.responseData.translatedText);
-                }
-            } catch (err) {
-                console.error('Translation error:', err);
-            }
+            // Placeholder: Translation logic would go here if needed
         }
 
         await announceChannel.send({ content: pingingRole, embeds: [embed] });

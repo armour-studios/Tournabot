@@ -43,7 +43,7 @@ Assign a custom prefix for TournaBot legacy commands.
 Support server, developer contact, and open-source information.
 `];
   const helpSelectionEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(descriptions[index])
     .setFooter({ text: `Page ${index + 1} of 2`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
 
@@ -70,7 +70,7 @@ Checks if a user as linked their accounts OR checks whether each attendee has li
   const examples = ['https://i.imgur.com/uvWQE1R.png', 'https://i.imgur.com/LqgWaWn.png', 'https://i.imgur.com/mnWZwki.png'];
 
   const accountsEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -96,7 +96,7 @@ Tournament reminders include basic tournament/event information, all stored in a
   const examples = ['https://i.imgur.com/XNFHbeJ.png', 'https://i.imgur.com/noJpDgz.png'];
 
   const reminderEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -108,7 +108,7 @@ ${descriptions[index]}`)
 
 const generateResultsEmbed = index => {
   const accountsEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 **User Tournament Results**
 
@@ -143,7 +143,7 @@ Stops DQ pinging.
   const examples = ['https://i.imgur.com/5swyvDE.png', 'https://i.imgur.com/PttOLYc.png', 'https://i.imgur.com/KeVuRDW.png'];
 
   const DQPingingEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -191,7 +191,7 @@ Announces a given tournament with registration/event times, streams, and additio
   const thumbnails = ['https://i.imgur.com/wZ9IbTf.png', 'https://i.imgur.com/TO7tlrA.png', 'https://i.imgur.com/OpbRMIM.png'];
 
   const announceEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -219,7 +219,7 @@ Sets the language that Tournabot uses. Language localization does not apply to D
   const examples = ['https://i.imgur.com/OOFBH0O.png', 'https://i.imgur.com/TEpnXU0.png'];
 
   const localizationEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -255,7 +255,7 @@ Pings all users that are active for matchmaking, deletes the mentions, and then 
   const examples = ['https://i.imgur.com/9QaaYOX.png', 'https://i.imgur.com/326Dds4.png', 'https://i.imgur.com/SlLeWsb.png', 'https://i.imgur.com/mEAJcD3.png', 'https://i.imgur.com/Oy5xx1M.png'];
 
   const matchmakingEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
@@ -267,7 +267,7 @@ ${descriptions[index]}`)
 
 const generateSearchEmbed = index => {
   const searchEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 **Tournament Searching**
 
@@ -285,7 +285,7 @@ Currently supported games: \`Super Smash Bros. Ultimate\`, \`Valorant\`
 
 const generatePrefixEmbed = index => {
   const prefixEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`
 **Custom Prefix**
 
@@ -302,7 +302,7 @@ Assign a custom prefix for TournaBot legacy commands. Please note that prefixes 
 
 const generateInfoEmbed = index => {
   const infoEmbed = new EmbedBuilder()
-    .setColor('#222326')
+    .setColor('#00A3FF')
     .setDescription(`For any inquiries or help, feel free to join the [support/development server](https://discord.gg/ssYPUk6Snc) or contact the developer/owner of TournaBot, **F0ne#1933**. Please upvote the bot on the [top.gg page](https://top.gg/bot/719283403698077708) if you can as well! TournaBot is also a open-source project, you can find the code at the [Github repository](https://github.com/Ayaan-Govil/TournaBot).`)
     .setFooter({ text: `TournaBot`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
 

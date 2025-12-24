@@ -247,7 +247,24 @@ async function pingUser(set, roundText, dqChannel) {
             }
         }
 
-        await dqChannel.send(`${entrantMentions[0]} and ${entrantMentions[1]}, your match for ${roundText}`);
+        const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+
+        const matchEmbed = new EmbedBuilder()
+            .setTitle('⚔️ Match Called')
+            .setColor('#FF3636')
+            .setDescription(`${entrantMentions[0]} vs ${entrantMentions[1]}\n${roundText}`)
+            .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+            .setTimestamp();
+
+        const modButton = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`requestmod_${set.id}`)
+                .setLabel('Request Moderator')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('👮')
+        );
+
+        await dqChannel.send({ content: `${entrantMentions[0]} ${entrantMentions[1]}`, embeds: [matchEmbed], components: [modButton] });
     } catch (err) {
         console.error('Error in pingUser:', err);
     }
