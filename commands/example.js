@@ -1,29 +1,23 @@
-// Dependencies
-const Discord = require('discord.js');
-const urllib = require('urllib');
-const { Vibrant } = require('node-vibrant/node');
-const replaceall = require('replaceall');
-const { distance, closest } = require('fastest-levenshtein');
-const accurateInterval = require('accurate-interval');
-const setAccurateTimeout = require('set-accurate-timeout');
-const mongoose = require('mongoose');
-const { convertEpoch, convertEpochToClock, sendMessage, queryAPI } = require('../functions');
-
-// MongoDB Models
-const channelModel = require('../database/models/channel');
-const accountModel = require('../database/models/account');
-const mmuserModel = require('../database/models/mmuser');
-const mmroleModel = require('../database/models/mmrole');
-const announcemessageModel = require('../database/models/announcemessage');
-const pingroleModel = require('../database/models/pingrole');
-const timezoneModel = require('../database/models/timezone');
-const languageModel = require('../database/models/language');
-const prefixModel = require('../database/models/prefix');
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { queryAPI, sendMessage } = require('../functions');
 
 module.exports = {
-  name: 'REPLACE NAME',
-  description: 'REPLACE DESCRIPTION',
-  execute(message, client) {
+  name: 'example',
+  description: 'An example slash command template',
+  // Standard execute for legacy prefix support (optional)
+  async execute(message, client) {
+    // You can call executeSlash by mocking an interaction if needed
+    // return this.executeSlash(mockInteraction, client);
+    message.reply('This command only supports slash commands!');
+  },
+  // Modern executeSlash for Discord v14 Slash Commands
+  async executeSlash(interaction, client) {
+    // Example of getting an option
+    // const value = interaction.options.getString('input');
 
+    await interaction.reply({
+      content: 'This is an example slash command response.',
+      ephemeral: true
+    });
   },
 };

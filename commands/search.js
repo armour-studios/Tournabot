@@ -1,185 +1,138 @@
-// Dependencies
-const Discord = require('discord.js');
-const { convertEpoch, convertEpochToClock, sendMessage, queryAPI } = require('../functions');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { convertEpoch, convertEpochToClock, queryAPI } = require('../functions');
 
 module.exports = {
   name: 'search',
-  description: 'Search for the top 10 upcoming tournaments by game.',
-  execute(message) {
-    // IDs:
-    // Smash Ultimate: 1386
-    // Valorant: 34223
-    // if (!(message.channel instanceof Discord.DMChannel) && !message.member.hasPermission('ADMINISTRATOR')) {
-    //   message.channel instanceof Discord.DMChannel ? sendMessage(message, 'You don\'t have the permissions for that :sob:', 'REPLY') : sendMessage(message, 'you don\'t have the permissions for that :sob:', 'REPLY');
-    //   return;
-    // }
-    let gameArgs = message.content.split(' ');
-    gameArgs.shift();
-    let game;
-    let gameFound = false;
-    let gameName;
-    if (gameArgs.length >= 1) {
+  description: 'Search for upcoming tournaments by game.',
+  async execute(message, client) {
+    const args = message.content.split(' ').slice(1);
+    const mockInteraction = {
+      options: {
+        getString: (name) => args.join(' ')
+      },
+      user: message.author,
+      channel: message.channel,
+      reply: async (content) => message.reply(content),
+      editReply: async (content) => message.edit(content),
+      isChatInputCommand: () => false
+    };
+    return this.executeSlash(mockInteraction, client);
+  },
+  async executeSlash(interaction, client) {
+    const gameNameInput = interaction.options.getString('game');
+    let videogameId;
+    let gameDisplayName;
 
-      switch (gameArgs.join(' ').toLowerCase()) {
-        case 'super smash bros. ultimate':
-        case 'super smash bros ultimate':
-        case 'smash bros. ultimate':
-        case 'smash bros ultimate':
-        case 'smash ultimate':
-        case 'ultimate':
-          game = 1386;
-          gameFound = true;
-          gameName = 'Super Smash Bros. Ultimate';
-          break;
+    if (!gameNameInput) return interaction.reply('Please specify a game to search for.');
 
-        case 'valorant':
-          game = 34223;
-          gameFound = true;
-          gameName = 'Valorant'
-          break;
+    const lowerInput = gameNameInput.toLowerCase();
+    if (lowerInput.includes('ultimate') || lowerInput.includes('smash bros')) {
+      videogameId = 1386;
+      gameDisplayName = 'Super Smash Bros. Ultimate';
+    } else if (lowerInput.includes('valorant')) {
+      videogameId = 34223;
+      gameDisplayName = 'Valorant';
+    } else {
+      return interaction.reply(`I currently only support searching for **Super Smash Bros. Ultimate** or **Valorant**.`);
+    }
+
+    await (interaction.deferReply ? interaction.deferReply() : Promise.resolve());
+
+    const query = `query TournamentsByVideogame($videogameId: ID!) {
+      tournaments(query: {
+        perPage: 10
+        page: 1
+        sortBy: "startAt asc"
+        filter: {
+          upcoming: true
+          videogameIds: [$videogameId]
+        }
+      }) {
+        nodes {
+          name
+          slug
+          numAttendees
+          startAt
+          isOnline
+          images { height width url }
+          events {
+            name
+            numEntrants
+            startAt
+            checkInEnabled
+            checkInBuffer
+            checkInDuration
+          }
+          streams {
+            streamSource
+            streamName
+          }
+        }
+      }
+    }`;
+
+    try {
+      const data = await queryAPI(query, { videogameId });
+      if (!data || !data.data || !data.data.tournaments || data.data.tournaments.nodes.length === 0) {
+        return interaction.editReply(`No upcoming **${gameDisplayName}** tournaments found.`);
       }
 
-      if (gameFound) {
-        sendMessage(message, `Searching for upcoming ${gameName} tournaments...`);
-        var perPage = 10;
-        var videogameId = game;
-        var query = `query TournamentsByVideogame($videogameId: ID!) {
-                        tournaments(query: {
-                          perPage: 10
-                          page: 1
-                          sortBy: "startAt asc"
-                          filter: {
-                          upcoming: true
-                          videogameIds: [
-                          $videogameId
-                            ]
-                          }
-                        }) {
-                          nodes {
-                            id
-                            name
-                            slug
-                            numAttendees
-                            startAt
-                            isOnline
-                            images {
-                              height
-                              width
-                              url
-                            }
-                            events {
-                              id
-                              name
-                              numEntrants
-                              startAt
-                              checkInEnabled
-                              checkInBuffer
-                              checkInDuration
-                            }
-                            streams {
-                              streamSource
-                              streamName
-                            }
-                          }
-                        }
-                      }`;
+      const tournaments = data.data.tournaments.nodes;
 
-        queryAPI(query, { perPage, videogameId }).then(data => {
-          if (data.data) {
-            let upcomingTournaments = data.data.tournaments.nodes;
-            let tournamentArray = [];
+      const generateEmbed = (index) => {
+        const t = tournaments[index];
+        const thumb = t.images.find(img => img.height === img.width)?.url || '';
+        const banner = t.images.find(img => img.height !== img.width)?.url || '';
 
-            for (i = 0; i < upcomingTournaments.length; i++) {
-              tournamentArray[i] = upcomingTournaments[i];
-            }
+        const embed = new EmbedBuilder()
+          .setTitle(t.name)
+          .setURL(`https://start.gg/${t.slug}`)
+          .setColor('#222326')
+          .setThumbnail(thumb)
+          .setImage(banner)
+          .addFields(
+            { name: 'Info', value: `${t.numAttendees} Attendees\n${t.isOnline ? 'Online' : 'Offline'}\n${convertEpoch(t.startAt, 'America/Los_Angeles')}`, inline: true },
+            { name: 'Events', value: t.events.slice(0, 3).map(e => `\`${e.name}\` (${e.numEntrants} entrants)`).join('\n') || 'N/A', inline: true }
+          )
+          .setFooter({ text: `Tournament ${index + 1} of ${tournaments.length}`, iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
 
-            const generateEmbed = index => {
-              let tournament = tournamentArray[index];
+        const twitchStreams = t.streams.filter(s => s.streamSource === 'TWITCH').map(s => `https://twitch.tv/${s.streamName}`);
+        if (twitchStreams.length > 0) {
+          embed.addFields({ name: 'Streams', value: twitchStreams.join('\n') });
+        }
 
-              let imageurl = ['', ''];
-              if (tournament.images) {
-                for (let image of tournament.images) {
-                  if (image) image.height === image.width ? imageurl[0] = image.url : imageurl[1] = image.url;
-                }
-              }
+        return embed;
+      };
 
-              let tournamentOnline = 'Offline';
-              if (tournament.isOnline) tournamentOnline = 'Online';
+      let currentIndex = 0;
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('prev').setLabel('Previous').setStyle(ButtonStyle.Secondary).setDisabled(true),
+        new ButtonBuilder().setCustomId('next').setLabel('Next').setStyle(ButtonStyle.Secondary).setDisabled(tournaments.length <= 1)
+      );
 
-              let events = [];
-              for (e = 0; e < tournament.events.length; e++) {
-                if (e < 3) {
-                  events.push(`\`${tournament.events[e].name}\``);
-                  events.push(`${tournament.events[e].numEntrants} Entrants`);
-                  events.push(`*${convertEpoch(tournament.events[e].startAt, 'America/Los_Angeles')}*`);
-                  if (tournament.events[e].checkInEnabled) events.push(`__Check-in opens at ${convertEpochToClock(tournament.events[e].startAt - tournament.events[e].checkInBuffer - tournament.events[e].checkInDuration, 'America/Los_Angeles', false)} and closes at ${convertEpochToClock(tournament.events[e].startAt - tournament.events[e].checkInBuffer, 'America/Los_Angeles', false)}.__`);
-                } else {
-                  events.push('\`And more...\`');
-                  e = tournament.events.length;
-                }
-              }
+      const response = await interaction.editReply({ embeds: [generateEmbed(currentIndex)], components: [row] });
 
-              let streams = [];
-              if (tournament.streams) {
-                for (let stream of tournament.streams) {
-                  if (stream.streamSource === 'TWITCH') {
-                    streams.push(`https://twitch.tv/${stream.streamName}`);
-                  }
-                }
-              }
+      const collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 300000 });
 
-              const searchEmbed = new Discord.MessageEmbed()
-                .setColor('#222326')
-                .setTitle(tournament.name)
-                .setURL(`https://smash.gg/${tournament.slug}`)
-                .setThumbnail(imageurl[0])
-                .setImage(imageurl[1])
-                .addFields(
-                  {
-                    name: 'Tournament Info', value: `
-${tournament.numAttendees} Attendees
-*${tournamentOnline} Tournament*
-*${convertEpoch(tournament.startAt, 'America/Los_Angeles')}*`, inline: true
-                  },
-                  { name: 'Events', value: events.join('\n'), inline: true },
-                )
-                .setFooter(`Tournament ${index + 1} of ${tournamentArray.length}`, 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png');
-              if (streams.length) searchEmbed.addField('Streams', streams.join('\n'));
-              return searchEmbed;
-            }
+      collector.on('collect', async i => {
+        if (i.user.id !== (interaction.user ? interaction.user.id : interaction.author.id)) {
+          return i.reply({ content: 'Not your buttons!', ephemeral: true });
+        }
 
-            let currentIndex = 0;
-            message.channel.send(generateEmbed(currentIndex)).then(message => {
-              message.react('⬅️');
-              message.react('➡️');
-              const filter = (reaction, user) => {
-                return (reaction.emoji.name === '⬅️' || reaction.emoji.name === '➡️') && user.id != message.author.id;
-              };
+        if (i.customId === 'next') currentIndex++;
+        else if (i.customId === 'prev') currentIndex--;
 
-              const collector = message.createReactionCollector(filter, { time: 300000 });
+        const updatedRow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId('prev').setLabel('Previous').setStyle(ButtonStyle.Secondary).setDisabled(currentIndex === 0),
+          new ButtonBuilder().setCustomId('next').setLabel('Next').setStyle(ButtonStyle.Secondary).setDisabled(currentIndex === tournaments.length - 1)
+        );
 
-              collector.on('collect', (reaction, user) => {
+        await i.update({ embeds: [generateEmbed(currentIndex)], components: [updatedRow] });
+      });
 
-                if (reaction.emoji.name === '➡️') {
-                  if (currentIndex < tournamentArray.length - 1) {
-                    currentIndex++;
-                    message.edit(generateEmbed(currentIndex));
-                  }
-                } else {
-                  if (currentIndex > 0) {
-                    currentIndex--;
-                    message.edit(generateEmbed(currentIndex));
-                  }
-                }
-              });
-
-              collector.on('end', collected => {
-                console.log(`Done collecting for search`);
-              });
-            }).catch(err => console.log(err));
-          }
-        }).catch(err => console.log(err));
-      } else { sendMessage(message, `I could not find the specified game. Do \`t!help\` to get command info.`); }
-    } else { sendMessage(message, `There is no game provided. Do \`t!help\` to get command info.`); }
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply('An error occurred while searching for tournaments.');
+    }
   },
 };

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { SMASHGGTOKEN } = process.env;
 const languageModel = require('./database/models/language');
 const fetch = require('node-fetch');
@@ -56,65 +56,71 @@ function convertEpochToClock(epoch, citytimezone, showSeconds) {
   return convertedTime;
 }
 
-// Use string parsing to remove the need to set two different messages in replies with special formatting
-function sendMessage(message, specifiedMessage, messageType) {
-  let guildID = '';
-  !message.guild ? guildID = message.channel.id : guildID = message.guild.id;
-  languageModel.find({
-    guildid: guildID
-  }, function (err, result) {
-    if (err) throw err;
-    if (result.length) {
-      fetch(`https://api.mymemory.translated.net/get?q=${fixedEncodeURIComponent(specifiedMessage)}&langpair=en|${result[0].language}&de=random@gmail.com`)
-        .then(res => res.json())
-        .then(json => {
-          let translation = json.responseData.translatedText;
-          translation === null ? generateAndSend(specifiedMessage) : translation.toUpperCase() != translation ? generateAndSend(translation) : generateAndSend(specifiedMessage);
-        }).catch(err => console.log(err));
-      function fixedEncodeURIComponent(str) {
-        return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
-          return '%' + c.charCodeAt(0).toString(16);
-        });
+async function generateAndSend(finalMessage, target, messageType) {
+  const messageEmbed = new EmbedBuilder()
+    .setColor('#222326')
+    .setDescription(finalMessage);
+
+  try {
+    if (target.reply && (messageType === 'REPLY' || !target.channel)) {
+      await target.reply({ content: messageType === 'REPLY' ? finalMessage : null, embeds: messageType === 'EMBED' || !messageType ? [messageEmbed] : [] });
+    } else if (target.channel) {
+      if (messageType === 'EMBED' || !messageType) {
+        await target.channel.send({ embeds: [messageEmbed] });
+      } else {
+        await target.channel.send(finalMessage);
       }
-    } else { generateAndSend(specifiedMessage); }
-  }).catch(err => console.log(err));
-  function generateAndSend(finalMessage) {
-    const messageEmbed = new Discord.MessageEmbed()
-      .setColor('#222326')
-      .setDescription(finalMessage);
-    switch (messageType) {
-      case 'EMBED':
-
-        message.channel.send(messageEmbed);
-        break;
-
-      case 'REPLY':
-        message.reply(finalMessage);
-        break;
-
-      case 'SEND':
-        message.channel.send(finalMessage);
-        break;
-
-      default:
-        message.channel.send(messageEmbed);
+    } else if (target.send) { // User object
+      await target.send({ content: messageType === 'REPLY' ? finalMessage : null, embeds: messageType === 'EMBED' || !messageType ? [messageEmbed] : [] });
     }
+  } catch (err) {
+    console.error('Error in generateAndSend:', err);
+  }
+}
+
+async function sendMessage(target, specifiedMessage, messageType) {
+  let guildID = '';
+  if (target.guildId) guildID = target.guildId;
+  else if (target.guild) guildID = target.guild.id;
+  else if (target.channel) guildID = target.channel.id;
+
+  try {
+    const result = await languageModel.findOne({ guildid: guildID });
+
+    if (result && result.language && result.language !== 'en') {
+      const encodedMessage = encodeURIComponent(specifiedMessage).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16));
+      const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodedMessage}&langpair=en|${result.language}&de=random@gmail.com`);
+      const json = await response.json();
+
+      let translation = json.responseData.translatedText;
+      if (translation && translation.toUpperCase() !== translation) {
+        return generateAndSend(translation, target, messageType);
+      }
+    }
+
+    generateAndSend(specifiedMessage, target, messageType);
+  } catch (err) {
+    console.error('Error in sendMessage:', err);
+    generateAndSend(specifiedMessage, target, messageType);
   }
 }
 
 async function queryAPI(query, variables) {
-  return await fetch('https://api.smash.gg/gql/alpha', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ' + SMASHGGTOKEN
-    },
-    body: JSON.stringify({
-      query,
-      variables: variables,
-    })
-  }).then(r => { return r.json() }).catch(err => console.log(err));
+  try {
+    const response = await fetch('https://api.start.gg/gql/alpha', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + SMASHGGTOKEN
+      },
+      body: JSON.stringify({ query, variables })
+    });
+    return await response.json();
+  } catch (err) {
+    console.error('API Query Error:', err);
+    return null;
+  }
 }
 
 module.exports = {

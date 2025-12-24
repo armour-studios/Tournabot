@@ -5,14 +5,16 @@
   "main": "index.js",
   "scripts": {
     "build": "npm install && npm update && echo Build complete.",
-    "start": "node index.js",
+    "start": "node deploy_commands.js && node index.js",
     "test": "nodemon -e js"
   },
   "author": "Ayaan-Govil",
   "license": "GPL-3.0",
   "dependencies": {
     "accurate-interval": "^1.0.9",
-    "discord.js": "^12.5.3",
+    "discord.js": "^14.16.3",
+    "@discordjs/rest": "^2.3.0",
+    "discord-api-types": "^0.37.94",
     "dotenv": "^17.2.3",
     "es6-promise": "^4.2.8",
     "fastest-levenshtein": "^1.0.12",

@@ -1,6 +1,4 @@
-// Dependencies
-const Discord = require('discord.js');
-const { sendMessage } = require('../functions');
+const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 
 // MongoDB Models
 const mmuserModel = require('../database/models/mmuser');
@@ -9,253 +7,158 @@ const mmroleModel = require('../database/models/mmrole');
 module.exports = {
   name: 'mm',
   description: 'Improved role-based matchmaking.',
-  execute(message) {
-    // Matchmaking needs to be completely redone coding-wise
-    // No localization for parts of matchmaking due to encoding messing with formatting
-    mmArgs = message.content.split(' ');
-    mmArgs.shift();
-    if (message.channel instanceof Discord.DMChannel) { sendMessage(message, 'I cannot run this command in DMs.'); }
-    else if (mmArgs[0] === undefined) {
-      sendMessage(message, `No arguments given. Do \`t!help\` to get command info.
+  async execute(message, client) {
+    const args = message.content.split(' ').slice(1);
+    const mockInteraction = {
+      options: {
+        getSubcommand: () => args[0],
+        getRole: (name) => {
+          const potentialRole = args[1]?.replace(/[<@&>]/g, '');
+          return message.guild.roles.cache.get(potentialRole) || message.guild.roles.cache.find(r => r.name === args.slice(1).join(' '));
+        },
+        getString: (name) => args[1] // For cases where they might type role name
+      },
+      user: message.author,
+      guild: message.guild,
+      member: message.member,
+      channel: message.channel,
+      reply: async (content) => message.reply(content),
+      isChatInputCommand: () => false
+    };
+    return this.executeSlash(mockInteraction, client);
+  },
+  async executeSlash(interaction, client) {
+    if (!interaction.guild) return interaction.reply('I cannot run this command in DMs.');
+    const subcommand = interaction.options.getSubcommand();
+    const guildID = interaction.guild.id;
 
-Possible arguments: \`set <@role/role name (optional)>\`, \`on\`, \`off\`, \`list\`, \`ping\``);
-    } else {
-      let activeRole;
-      let activeRoleID
-      let activeRoleName;
-      let activeRolePing;
-      let userList;
-      let guildID = message.guild.id;
-      switch (mmArgs[0].toString()) {
+    switch (subcommand) {
+      case 'set':
+        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+          return interaction.reply({ content: 'You do not have the permissions for that :sob:', ephemeral: true });
+        }
+        const role = interaction.options.getRole('role');
+        if (!role) return interaction.reply('Please specify a role to set for matchmaking.');
 
-        // t!mm set <@role/role name (optional)>
-        case 'set':
-          if (message.member.hasPermission('ADMINISTRATOR')) {
-            if (mmArgs.length >= 2) {
-              mmArgs.shift();
-              mmArgs = mmArgs.join(' ');
-              let potentialRole = mmArgs.replace('<@&', '').replace('>', '');
-              var addedRole = message.guild.roles.cache.find(role => role.id === potentialRole);
-              if (addedRole) {
-                activeRoleID = addedRole.id;
-                activeRolePing = `<@&${activeRoleID}>`;
-                setRole();
-              } else {
-                addedRole = message.guild.roles.cache.find(role => role.name === potentialRole);
-                if (addedRole) {
-                  activeRoleID = addedRole.id;
-                  activeRolePing = `<@&${activeRoleID}>`;
-                  setRole();
-                } else { sendMessage(message, `I could not find the specified role. Make sure you are pinging the role using @.`); }
-              }
-              function setRole() {
-                mmroleModel.find({
-                  guildid: guildID
-                }, function (err, result) {
-                  if (err) throw err;
-                  if (result.length) {
-                    mmroleModel.replaceOne({
-                      guildid: guildID
-                    }, {
-                      guildid: guildID,
-                      role: addedRole
-                    }, function (err, result) {
-                      if (err) throw err;
-                      sendMessage(message, `The matchmaking role has been changed to ${activeRolePing} :white_check_mark:`);
-                    }).catch(err => console.log(err));
-                  } else {
-                    let roleSet = new mmroleModel({
-                      guildid: guildID,
-                      role: addedRole
-                    }).save().then(result => sendMessage(message, `The matchmaking role is now set to ${activeRolePing} :white_check_mark:`)).catch(err => console.log(err));
-                  }
-                }).catch(err => console.log(err));
-              }
-            } else { sendMessage(message, 'Something went wrong :confused: . Do \`t!help\` to get command info.'); }
-          } else { sendMessage(message, 'you don\'t have the permissions for that :sob:', 'REPLY'); }
-          break;
+        try {
+          await mmroleModel.findOneAndUpdate(
+            { guildid: guildID },
+            { role: role.id },
+            { upsert: true, new: true }
+          );
+          await interaction.reply(`The matchmaking role has been set to ${role} :white_check_mark:`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('There was an error setting the matchmaking role.');
+        }
+        break;
 
-        // t!mm on
-        case 'on':
-          mmroleModel.find({
-            guildid: guildID
-          }, function (err, result) {
-            if (err) throw err;
-            if (result.length) {
-              activeRole = message.guild.roles.cache.find(role => role.id === result[0].role);
-              activeRoleID = activeRole.id;
-              activeRoleName = activeRole.name;
-              if (message.member.roles.cache.some(role => role.id === activeRoleID)) { // role check
-                mmuserModel.find({
-                  roleid: activeRoleID
-                }, function (err, result) {
-                  if (err) throw err;
-                  if (result.length) {
-                    userList = result[0].activeusers;
-                    var userMatched = false;
-                    for (u = 0; u < userList.length; u++) {
-                      if (`<@${message.member.id}>` === userList[u]) {
-                        userMatched = true;
-                      }
-                    }
-                    if (!userMatched) {
-                      userList.push(`<@${message.member.id}>`);
-                      mmuserModel.replaceOne({
-                        roleid: activeRoleID
-                      }, {
-                        roleid: activeRoleID,
-                        activeusers: userList
-                      },
-                        function (err, result) {
-                          if (err) throw err;
-                          message.reply(`you are now online for **${activeRoleName}**!`);
-                        }).catch(err => console.log(err));
-                    } else { message.reply(`you are already online.`); }
-                  } else {
-                    let userSet = new mmuserModel({
-                      roleid: activeRoleID,
-                      activeusers: [`<@${message.member.id}>`]
-                    }).save().then(result => message.reply(`you are now online for **${activeRoleName}**!`)).catch(err => console.log(err));
-                  }
-                }).catch(err => console.log(err));
-              } else { message.reply(`you do not have the **${activeRoleName}** role.`); }
-            } else {
-              message.reply(`There is no matchmaking role set. Admins can do \`t!mm set <role name without @>\` to set the matchmaking role.`);
-            }
-          }).catch(err => console.log(err));
-          break;
+      case 'on':
+        try {
+          const mmRoleData = await mmroleModel.findOne({ guildid: guildID });
+          if (!mmRoleData) return interaction.reply('There is no matchmaking role set. Admins can use `/mm set` to set one.');
 
-        // t!mm off
-        case 'off':
-          // SET OFF TO SINGLE ROLE
-          mmroleModel.find({
-            guildid: guildID
-          }, function (err, result) {
-            if (err) throw err;
-            if (result.length) {
-              activeRole = message.guild.roles.cache.find(role => role.id === result[0].role);
-              activeRoleID = activeRole.id;
-              activeRoleName = activeRole.name;
-              if (message.member.roles.cache.some(role => role.id === activeRoleID)) { // role check
-                mmuserModel.find({
-                  roleid: activeRoleID
-                }, function (err, result) {
-                  if (err) throw err;
-                  userList = result[0].activeusers;
-                  if (userList && userList.length) {
-                    var userFound = false;
-                    for (u = 0; u < userList.length; u++) {
-                      if (`<@${message.member.id}>` === userList[u]) {
-                        userFound = true;
-                        userList.splice(u, 1);
-                        mmuserModel.replaceOne({
-                          roleid: activeRoleID
-                        }, {
-                          roleid: activeRoleID,
-                          activeusers: userList
-                        },
-                          function (err, result) {
-                            if (err) throw err;
-                            message.reply(`you are now offline for **${activeRoleName}**!`);
-                          }).catch(err => console.log(err));
-                      }
-                    }
-                    if (!userFound) { message.reply(`you are not online for **${activeRoleName}** currently. Do \`t!mm on\` to go online.`) }
-                  } else { message.reply(`no one is currently online for **${activeRoleName}**`); }
-                }).catch(err => console.log(err));
-              } else { message.reply(`you do not have the **${activeRoleName}** role.`); }
-            } else {
-              sendMessage(message, `There is no matchmaking role currently set. Admins can do \`t!mm set <role name without @>\` to set the matchmaking role.`)
-            }
-          }).catch(err => console.log(err));
+          const mmRole = interaction.guild.roles.cache.get(mmRoleData.role);
+          if (!mmRole) return interaction.reply('The configured matchmaking role no longer exists. Please re-set it.');
 
-          break;
+          if (!interaction.member.roles.cache.has(mmRole.id)) {
+            return interaction.reply(`You do not have the **${mmRole.name}** role.`);
+          }
 
-        // t!mm list
-        case 'list':
-          mmroleModel.find({
-            guildid: guildID
-          }, function (err, result) {
-            if (err) throw err;
-            if (result.length) {
-              activeRole = message.guild.roles.cache.find(role => role.id === result[0].role);
-              activeRoleID = activeRole.id;
-              activeRolePing = `<@&${activeRoleID}>`;
-              mmuserModel.find({
-                roleid: activeRoleID
-              }, function (err, result) {
-                if (err) throw err;
-                let listMessage = [];
-                if (result.length) {
-                  userList = result[0].activeusers;
-                  if (userList && userList.length) {
-                    listMessage.push(`**Role:** ${activeRolePing}
-**Online for Matchmaking:**
-    ${userList.join(`
-`)}
-`);
-                  } else {
-                    listMessage.push(`**Role:** ${activeRolePing}
-**Online for Matchmaking:**
-*None*
-`);
-                  }
-                } else {
-                  listMessage.push(`**Role:** ${activeRolePing}
-**Online for Matchmaking:**
-*None*
-`);
-                }
-                const rolesList = new Discord.MessageEmbed()
-                  .setColor('#222326')
-                  .setTitle('Matchmaking')
-                  .setDescription(listMessage.join(`
-`))
-                  .setFooter('TournaBot', 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png');
-                message.channel.send(rolesList);
-              }).catch(err => console.log(err));
-            } else {
-              sendMessage(message, 'There is no matchmaking role currently set. Admins can do \`t!mm set <role name without @>\` to set the matchmaking role.');
-            }
-          }).catch(err => console.log(err));
-          break;
+          const userData = await mmuserModel.findOne({ roleid: mmRole.id });
+          let userList = userData ? userData.activeusers : [];
 
-        // t!mm ping
-        case 'ping':
-          mmroleModel.find({
-            guildid: guildID
-          }, function (err, result) {
-            if (err) throw err;
-            if (result.length) {
-              activeRole = message.guild.roles.cache.find(role => role.id === result[0].role);
-              activeRoleID = activeRole.id;
-              activeRoleName = activeRole.name;
-              if (message.member.roles.cache.some(role => role.id === activeRoleID)) { // role check
-                mmuserModel.find({
-                  roleid: activeRoleID
-                }, function (err, result) {
-                  if (err) throw err;
-                  userList = result[0].activeusers;
-                  if (userList && userList.length) {
-                    message.channel.send(userList.join(' '))
-                      .then(message => {
-                        message.delete();
-                      })
-                    message.channel.send(`\`\`\`yaml
-@${activeRoleName}
-\`\`\``);
-                  } else { message.reply(`no one is currently online for **${activeRoleName}**`); }
-                }).catch(err => console.log(err));
-              } else { message.reply(`you do not have the **${activeRoleName}** role.`); }
-            } else {
-              sendMessage(message, 'There is no matchmaking role currently set. Admins can do \`t!mm set <role name without @>\` to set the matchmaking role.');
-            }
-          }).catch(err => console.log(err));
-          break;
+          if (userList.includes(`<@${interaction.user.id}>`)) {
+            return interaction.reply('You are already online for matchmaking.');
+          }
 
-        default:
-          sendMessage(message, 'I could not recognize the argument provided. Do \`t!help\` to get command info.');
-      }
+          userList.push(`<@${interaction.user.id}>`);
+          await mmuserModel.findOneAndUpdate(
+            { roleid: mmRole.id },
+            { activeusers: userList },
+            { upsert: true }
+          );
+
+          await interaction.reply(`You are now online for **${mmRole.name}**!`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('There was an error going online.');
+        }
+        break;
+
+      case 'off':
+        try {
+          const mmRoleData = await mmroleModel.findOne({ guildid: guildID });
+          if (!mmRoleData) return interaction.reply('There is no matchmaking role set.');
+
+          const mmRole = interaction.guild.roles.cache.get(mmRoleData.role);
+          const userData = await mmuserModel.findOne({ roleid: mmRoleData.role });
+
+          if (!userData || !userData.activeusers.includes(`<@${interaction.user.id}>`)) {
+            return interaction.reply(`You are not currently online for matchmaking.`);
+          }
+
+          const newList = userData.activeusers.filter(u => u !== `<@${interaction.user.id}>`);
+          await mmuserModel.updateOne({ roleid: mmRoleData.role }, { activeusers: newList });
+
+          await interaction.reply(`You are now offline for **${mmRole ? mmRole.name : 'matchmaking'}**!`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('There was an error going offline.');
+        }
+        break;
+
+      case 'list':
+        try {
+          const mmRoleData = await mmroleModel.findOne({ guildid: guildID });
+          if (!mmRoleData) return interaction.reply('There is no matchmaking role set.');
+
+          const mmRole = interaction.guild.roles.cache.get(mmRoleData.role);
+          const userData = await mmuserModel.findOne({ roleid: mmRoleData.role });
+          const userList = userData ? userData.activeusers : [];
+
+          const embed = new EmbedBuilder()
+            .setTitle('Matchmaking')
+            .setColor('#222326')
+            .setDescription(`**Role:** ${mmRole ? mmRole : 'Deleted Role'}\n**Online for Matchmaking:**\n${userList.length > 0 ? userList.join('\n') : '*None*'}`)
+            .setFooter({ text: 'TournaBot', iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+
+          await interaction.reply({ embeds: [embed] });
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('There was an error fetching the matchmaking list.');
+        }
+        break;
+
+      case 'ping':
+        try {
+          const mmRoleData = await mmroleModel.findOne({ guildid: guildID });
+          if (!mmRoleData) return interaction.reply('There is no matchmaking role set.');
+
+          const mmRole = interaction.guild.roles.cache.get(mmRoleData.role);
+          if (!mmRole) return interaction.reply('The configured matchmaking role no longer exists.');
+
+          if (!interaction.member.roles.cache.has(mmRole.id)) {
+            return interaction.reply(`You do not have the **${mmRole.name}** role.`);
+          }
+
+          const userData = await mmuserModel.findOne({ roleid: mmRole.id });
+          const userList = userData ? userData.activeusers : [];
+
+          if (userList.length === 0) {
+            return interaction.reply(`No one is currently online for **${mmRole.name}**.`);
+          }
+
+          await interaction.channel.send(userList.join(' ')).then(m => setTimeout(() => m.delete().catch(() => { }), 1000));
+          await interaction.reply(`\`\`\`yaml\n@${mmRole.name}\n\`\`\``);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('There was an error pinging for matchmaking.');
+        }
+        break;
+
+      default:
+        await interaction.reply('Unknown subcommand. Use `set`, `on`, `off`, `list`, or `ping`.');
     }
   },
 };

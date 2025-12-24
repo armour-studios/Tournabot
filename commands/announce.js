@@ -1,8 +1,7 @@
-// Dependencies
-const Discord = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, PermissionFlagsBits } = require('discord.js');
 const fetch = require('node-fetch');
 const urllib = require('urllib');
-const { convertEpoch, convertEpochToClock, sendMessage, queryAPI } = require('../functions');
+const { convertEpoch, convertEpochToClock, queryAPI } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -14,212 +13,139 @@ const languageModel = require('../database/models/language');
 module.exports = {
   name: 'announce',
   description: 'Announce tournaments with event information.',
-  execute(message, client) {
-    // Announce code is old, needs to be rewritten to be more readable and efficient
-    if (message.channel instanceof Discord.DMChannel) { sendMessage(message, 'I cannot run this command in DMs.') }
-    else if (message.member.hasPermission('ADMINISTRATOR')) {
-      let tournamentArgs = message.content.split(' ');
-      tournamentArgs.shift();
-      if (tournamentArgs.length >= 2) {
-        if (tournamentArgs[0].startsWith('smash.gg/') || tournamentArgs[0].startsWith('https://smash.gg/tournament/')) {
-          let guildID = message.guild.id;
-          channelModel.find({
-            guildid: guildID
-          }, function (err, result) {
-            if (err) throw err;
-            if (result.length) {
-              let announcechannel = client.channels.cache.get(result[0].channelid);
-              sendMessage(message, `Announcing in ${announcechannel.name}...`);
-              if (tournamentArgs[0].startsWith('smash.gg/')) {
-                // Find path of short URL and parse URL for slug
-                urllib.request('https://' + tournamentArgs[0], function (err, data, res) {
-                  if (err) console.log(err);
-                  if (!(res.headers.location == undefined)) {
-                    let urlslug = res.headers.location.replace('https://smash.gg/tournament/', '');
-                    urlslug = urlslug.split('/');
-                    urlslug.splice(1);
-                    urlslug = urlslug.toString();
-                    getDataAndAnnounce(urlslug, res.headers.location);
-                  } else { sendMessage(message, 'I could not find a tournament from the short URL. Do \`t!help\` to get command info.'); }
-                });
-              } else {
-                let urlslug = tournamentArgs[0].replace('https://smash.gg/tournament/', '');
-                urlslug = urlslug.split('/');
-                urlslug.splice(1);
-                urlslug = urlslug.toString();
-                getDataAndAnnounce(urlslug, `https://smash.gg/tournament/${urlslug}/events`);
-              }
+  async execute(message, client) {
+    const args = message.content.split(' ').slice(1);
+    const mockInteraction = {
+      options: {
+        getString: (name) => {
+          if (name === 'url') return args[0];
+          if (name === 'ping') return args[1];
+          return null;
+        }
+      },
+      user: message.author,
+      guild: message.guild,
+      member: message.member,
+      channel: message.channel,
+      reply: async (content) => message.reply(content),
+      editReply: async (content) => message.edit(content),
+      isChatInputCommand: () => false
+    };
+    return this.executeSlash(mockInteraction, client);
+  },
+  async executeSlash(interaction, client) {
+    if (!interaction.guild) return interaction.reply('I cannot run this command in DMs.');
+    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+      return interaction.reply({ content: 'You do not have the permissions for that :sob:', ephemeral: true });
+    }
 
-              function getDataAndAnnounce(slugSpecified, tournamentURL) {
-                var slug = slugSpecified;
-                var query = `query TournamentQuery($slug: String) {
-		                            tournament(slug: $slug) {
-                                  name
-                                  registrationClosesAt
-                                  state
-			                            events {
-                                    name
-                                    startAt
-                                    checkInEnabled
-                                    checkInBuffer
-                                    checkInDuration
-			                            }
-                                  streams {
-                                    isOnline
-                                    streamSource
-                                    streamGame
-                                    streamName
-                                  }
-		                            }
-	                            }`;
+    const tournamentUrl = interaction.options.getString('url');
+    const pingOption = interaction.options.getString('ping') || 'no';
 
-                // Query basic tournament info
-                queryAPI(query, { slug }).then(data => {
-                  if (data.data.tournament) {
-                    let eventNames = [];
-                    let tournamentname = `**${data.data.tournament.name}**`;
-                    let events = data.data.tournament.events;
-                    let cityTimezone;
+    if (!tournamentUrl) return interaction.reply('Please provide a tournament URL.');
 
-                    // Stream code written by shrianshChari, last edited by Ayaan-Govil on 1/1/2021
-                    let streamAnnouncementMessage = ['Streams:\n'];
-                    let streamData = data.data.tournament.streams;
-                    if (streamData) {
-                      // Check that somebody is streaming the tournament.
-                      //let numStreaming = 0;
-                      // for (let i = 0; i < streamData.length; i++) {
-                      //   let stream = streamData[i];
-                      //   //if (stream.isOnline) { // Ideally would also check if the stream's game matches the tournament game
-                      //   numStreaming++;
-                      //   //}
-                      // }
-                      //if (numStreaming > 0) {
-                      for (let stream of streamData) {
-                        //let stream = streamData[i];
-                        //if (stream.isOnline) {
-                        if (stream.streamSource === 'TWITCH') {
-                          streamAnnouncementMessage.push(`https://twitch.tv/${stream.streamName}\n`);
-                        }
-                        // else {
-                        //   streamAnnouncementMessage = streamAnnouncementMessage + `**${stream.streamName}'s ${stream.streamSource.substring(0, 1).toUpperCase() + stream.streamSource.substring(1).toLowerCase()} channel**`; // Might not work with Facebook Gaming
-                        // }
-                        //}
-                      }
-                      //}
-                    }
-                    if (streamAnnouncementMessage.length === 1) streamAnnouncementMessage = [];
+    await (interaction.deferReply ? interaction.deferReply() : Promise.resolve());
 
-                    timezoneModel.find({
-                      guildid: guildID
-                    }, function (err, result) {
-                      if (err) throw err;
-                      if (result.length) {
-                        cityTimezone = result[0].timezone;
-                      } else {
-                        cityTimezone = 'America/Los_Angeles';
-                      }
-                      for (i = 0; i < events.length; i++) {
-                        eventNames.push(`**${events[i].name}**`);
-                        if (events[i].checkInEnabled) {
-                          eventNames.push(` - ${convertEpoch(events[i].startAt, cityTimezone)}
-Check-in opens at ${convertEpochToClock(events[i].startAt - events[i].checkInBuffer - events[i].checkInDuration, cityTimezone, false)} and closes at ${convertEpochToClock(events[i].startAt - events[i].checkInBuffer, cityTimezone, false)}.
-`);
-                        } else {
-                          eventNames.push(` - ${convertEpoch(events[i].startAt, cityTimezone)}
-`);
-                        }
-                      }
-                      let registrationCloseTime = convertEpoch(data.data.tournament.registrationClosesAt, cityTimezone);
-                      let tournamentAnnounceMessage;
-                      announcemessageModel.find({
-                        guildid: guildID
-                      }, function (err, result) {
-                        if (err) throw err;
-                        // replace with ternary operator
-                        if (result.length) {
-                          tournamentAnnounceMessage = result[0].announcemessage;
-                        } else {
-                          tournamentAnnounceMessage = undefined;
-                        }
-                        pingroleModel.find({
-                          guildid: guildID
-                        }, function (err, result) {
-                          if (err) throw err;
-                          let pingingRole;
-                          // replace with ternary operator
-                          if (result.length) {
-                            pingingRole = `<@&${result[0].role}>`;
-                          } else {
-                            pingingRole = '@everyone';
-                          }
-                          if (tournamentArgs[1] == 'ping') {
-                            if (tournamentAnnounceMessage === undefined) {
-                              tournamentAnnounceMessage = 'the registration for ' + tournamentname + ' is up:';
-                            }
-                            sendAnnouncement(true);
-                          } else if (tournamentArgs[1] == 'no' && tournamentArgs[2] == 'ping') {
-                            if (tournamentAnnounceMessage === undefined) {
-                              tournamentAnnounceMessage = 'The registration for ' + tournamentname + ' is up:';
-                            }
-                            sendAnnouncement(false);
-                          } else {
-                            sendMessage(message, `I could not understand whether to ping or not. Do \`t!help\` to get command info.
-Command format: \`t!announce <tournament URL/smash.gg short URL> <ping/no ping>\`
-`)
-                          }
-                          function sendAnnouncement(ping) {
+    const guildID = interaction.guild.id;
+    const channelResult = await channelModel.findOne({ guildid: guildID });
+    if (!channelResult) return interaction.editReply('There is no announcement channel set. Use `/set announcechannel` to set one.');
 
-                            let finalAnnounceMessage = `${tournamentAnnounceMessage} ${tournamentURL}
+    const announceChannel = client.channels.cache.get(channelResult.channelid);
+    if (!announceChannel) return interaction.editReply('I could not find the announcement channel. Please re-set it.');
 
-Registration closes on ${registrationCloseTime}.
+    let urlslug;
+    if (tournamentUrl.includes('smash.gg/tournament/') || tournamentUrl.includes('start.gg/tournament/')) {
+      urlslug = tournamentUrl.split('tournament/')[1].split('/')[0];
+    } else if (tournamentUrl.includes('smash.gg/') || tournamentUrl.includes('start.gg/')) {
+      // Handle short URLs or other formats - simple extraction for now
+      urlslug = tournamentUrl.split('/').pop();
+    } else {
+      return interaction.editReply('I could not recognize the URL provided.');
+    }
 
-Events:
-${eventNames.join('')}
-${streamAnnouncementMessage.join('')}`;
-
-                            languageModel.find({
-                              guildid: guildID
-                            }, function (err, result) {
-                              if (err) throw err;
-                              if (result.length) {
-                                fetch(`https://api.mymemory.translated.net/get?q=${fixedEncodeURIComponent(finalAnnounceMessage)}&langpair=en|${result[0].language}&de=random@gmail.com`)
-                                  .then(res => res.json())
-                                  .then(json => {
-                                    let translation;
-                                    ping ? translation = `${pingingRole}, ${json.responseData.translatedText}` : translation = json.responseData.translatedText;
-                                    translation.toUpperCase() != translation ? generateAndSend(translation) : generateAndSend(finalAnnounceMessage);
-                                  }).catch(err => console.log(err));
-                                function fixedEncodeURIComponent(str) {
-                                  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
-                                    return '%' + c.charCodeAt(0).toString(16);
-                                  });
-                                }
-                              } else {
-                                if (ping) {
-                                  finalAnnounceMessage = `${pingingRole}, ${finalAnnounceMessage}`;
-                                }
-                                generateAndSend(finalAnnounceMessage);
-                              }
-                            }).catch(err => console.log(err));
-                            function generateAndSend(finalMessage) {
-                              announcechannel.send(finalMessage);
-                              console.log(`announced in ${message.guild.name}`);
-                            }
-                          }
-                        }).catch(err => console.log(err));
-                      }).catch(err => console.log(err));
-                    }).catch(err => console.log(err));
-                  } else { sendMessage(message, `I could not find the specified tournament. Do \`t!help\` to get command info.`); }
-                }).catch(err => console.log(err));
-              }
-            } else { sendMessage(message, 'There is no announcement channel set. Do \`t!help\` to get command info.'); }
-          }).catch(err => console.log(err));
-        } else (sendMessage(message, 'I could not recognize the URL provided. Do \`t!help\` to get command info.'));
-      } else {
-        sendMessage(message, `Something went wrong :confused: . Do \`t!help\` to get command info.
-Command format: \`t!announce <tournament URL/smash.gg short URL> <ping/no ping>\`
-`);
+    const query = `query TournamentQuery($slug: String) {
+      tournament(slug: $slug) {
+        name
+        registrationClosesAt
+        url
+        events {
+          name
+          startAt
+          checkInEnabled
+          checkInBuffer
+          checkInDuration
+        }
+        streams {
+          streamSource
+          streamName
+        }
       }
-    } else { sendMessage(message, 'you don\'t have the permissions for that :sob:', 'REPLY'); }
+    }`;
+
+    try {
+      const data = await queryAPI(query, { slug: urlslug });
+      if (!data || !data.data || !data.data.tournament) {
+        return interaction.editReply('I could not find the specified tournament.');
+      }
+
+      const tournament = data.data.tournament;
+      const tzResult = await timezoneModel.findOne({ guildid: guildID });
+      const cityTimezone = tzResult ? tzResult.timezone : 'America/Los_Angeles';
+
+      const eventsInfo = tournament.events.map(event => {
+        let info = `**${event.name}** - ${convertEpoch(event.startAt, cityTimezone)}`;
+        if (event.checkInEnabled) {
+          const open = convertEpochToClock(event.startAt - event.checkInBuffer - event.checkInDuration, cityTimezone, false);
+          const close = convertEpochToClock(event.startAt - event.checkInBuffer, cityTimezone, false);
+          info += `\nCheck-in: ${open} - ${close}`;
+        }
+        return info;
+      }).join('\n\n');
+
+      const streams = tournament.streams
+        .filter(s => s.streamSource === 'TWITCH')
+        .map(s => `https://twitch.tv/${s.streamName}`)
+        .join('\n');
+
+      const announceMessageResult = await announcemessageModel.findOne({ guildid: guildID });
+      let announceText = announceMessageResult ? announceMessageResult.announcemessage : `The registration for **${tournament.name}** is up:`;
+
+      const pingRoleResult = await pingroleModel.findOne({ guildid: guildID });
+      const pingingRole = pingRoleResult ? `<@&${pingRoleResult.role}>` : '@everyone';
+
+      const embed = new EmbedBuilder()
+        .setTitle(tournament.name)
+        .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
+        .setColor('#222326')
+        .setDescription(`${announceText}\n\n**Registration closes on:** ${convertEpoch(tournament.registrationClosesAt, cityTimezone)}\n\n**Events:**\n${eventsInfo}`)
+        .setFooter({ text: 'TournaBot', iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+
+      if (streams) embed.addFields({ name: 'Streams', value: streams });
+
+      let finalContent = pingOption === 'ping' ? pingingRole : '';
+
+      // Localization Check
+      const langResult = await languageModel.findOne({ guildid: guildID });
+      if (langResult && langResult.language !== 'en') {
+        const translateUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(embed.data.description)}&langpair=en|${langResult.language}&de=random@gmail.com`;
+        try {
+          const res = await fetch(translateUrl);
+          const json = await res.json();
+          if (json.responseData && json.responseData.translatedText) {
+            embed.setDescription(json.responseData.translatedText);
+          }
+        } catch (err) {
+          console.error('Translation error:', err);
+        }
+      }
+
+      await announceChannel.send({ content: finalContent, embeds: [embed] });
+      await interaction.editReply(`Announced in ${announceChannel}.`);
+      console.log(`announced in ${interaction.guild.name}`);
+
+    } catch (error) {
+      console.error(error);
+      await interaction.editReply('An error occurred while fetching tournament data.');
+    }
   },
 };
