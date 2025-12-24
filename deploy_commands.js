@@ -20,8 +20,7 @@ const clientId = CLIENT_ID || Buffer.from(token.split('.')[0], 'base64').toStrin
 console.log(`- Using Client ID: ${clientId}`);
 
 const commands = [
-    new SlashCommandBuilder().setName('help').setDescription('List all commands or info about a specific command')
-        .addStringOption(option => option.setName('category').setDescription('The category to view')),
+    new SlashCommandBuilder().setName('help').setDescription('List all commands or info about a specific command'),
     new SlashCommandBuilder().setName('account').setDescription('User account linking and status checks')
         .addSubcommand(subcommand =>
             subcommand.setName('link').setDescription('Link your smash.gg account')
