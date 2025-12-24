@@ -1,7 +1,7 @@
 // Dependencies
 const Discord = require('discord.js');
 const urllib = require('urllib');
-const Vibrant = require('node-vibrant');
+const { Vibrant } = require('node-vibrant/node');
 const replaceall = require('replaceall');
 const { distance, closest } = require('fastest-levenshtein');
 const accurateInterval = require('accurate-interval');

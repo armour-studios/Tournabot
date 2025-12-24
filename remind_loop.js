@@ -1,6 +1,6 @@
 // Dependencies
 const Discord = require('discord.js');
-const Vibrant = require('node-vibrant');
+const { Vibrant } = require('node-vibrant/node');
 const accurateInterval = require('accurate-interval');
 const setAccurateTimeout = require('set-accurate-timeout');
 const { convertEpoch, convertEpochToClock, queryAPI } = require('./functions');

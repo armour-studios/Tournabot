@@ -2,7 +2,7 @@
 const Discord = require('discord.js');
 const characters = require('../database/character_codes.json');
 const characterfile = new Map(Object.entries(characters));
-const Vibrant = require('node-vibrant');
+const { Vibrant } = require('node-vibrant/node');
 const replaceall = require('replaceall');
 const { convertEpoch, sendMessage, queryAPI } = require('../functions');
 
