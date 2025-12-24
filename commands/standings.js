@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { queryAPI } = require('../functions');
+const { queryAPI, footerIcon } = require('../functions');
 
 module.exports = {
   name: 'standings',
@@ -46,7 +46,7 @@ module.exports = {
       const standings = event.standings.nodes;
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Tournament Standings', iconURL: 'https://i.imgur.com/v1hKkQ6.png' })
+        .setAuthor({ name: 'Tournament Standings', iconURL: footerIcon })
         .setTitle(`${event.tournament.name} - ${event.name}`)
         .setColor('#FF3636')
         .setURL(url);

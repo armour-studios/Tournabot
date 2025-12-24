@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
-const { convertEpoch, convertEpochToClock, queryAPI } = require('./functions');
+const { convertEpoch, convertEpochToClock, queryAPI, footerIcon } = require('./functions');
 
 // MongoDB Models
 const leagueModel = require('./database/models/league');
@@ -115,11 +115,11 @@ async function announceTournament(client, guildID, tournament, leagueName) {
             .join('\n');
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: 'League Announcement', iconURL: 'https://i.imgur.com/v1hKkQ6.png' })
+            .setAuthor({ name: 'League Announcement', iconURL: footerIcon })
             .setTitle(tournament.name)
             .setURL(`https://start.gg/${tournament.url || 'tournament/' + tournament.slug}`)
             .setColor('#FF3636')
-            .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || 'https://i.imgur.com/v1hKkQ6.png')
+            .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
             .setDescription(`${announceText}`)
             .addFields(
                 { name: '📅 Registration Closes', value: convertEpoch(tournament.registrationClosesAt, cityTimezone), inline: true },
@@ -127,7 +127,7 @@ async function announceTournament(client, guildID, tournament, leagueName) {
                 { name: '🏆 Events', value: eventsInfo }
             )
             .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-            .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+            .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
             .setTimestamp();
 
         if (streams) embed.addFields({ name: '📺 Streams', value: streams });

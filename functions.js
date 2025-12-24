@@ -127,5 +127,6 @@ module.exports = {
   convertEpoch: convertEpoch,
   convertEpochToClock: convertEpochToClock,
   sendMessage: sendMessage,
-  queryAPI: queryAPI
+  queryAPI: queryAPI,
+  footerIcon: 'https://i.imgur.com/gUwhkw3.png' // REPLACE THIS WITH YOUR NEW LOGO URL
 };

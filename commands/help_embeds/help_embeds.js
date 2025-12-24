@@ -45,7 +45,7 @@ Support server, developer contact, and open-source information.
   const helpSelectionEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(descriptions[index])
-    .setFooter({ text: `Page ${index + 1} of 2`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Page ${index + 1} of 2`, iconURL: footerIcon });
 
   return helpSelectionEmbed;
 }
@@ -77,7 +77,7 @@ ${descriptions[index]}`)
     .setImage(examples[index])
     .setFooter({ text: `Command ${index + 1} of 3`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
 
-  if (index === 2) accountsEmbed.setThumbnail('https://i.imgur.com/gUwhkw3.png');
+  if (index === 2) accountsEmbed.setThumbnail(footerIcon);
 
   return accountsEmbed;
 }
@@ -101,7 +101,7 @@ Tournament reminders include basic tournament/event information, all stored in a
 ${label}
 ${descriptions[index]}`)
     .setImage(examples[index])
-    .setFooter({ text: `Page ${index + 1} of 2`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Page ${index + 1} of 2`, iconURL: footerIcon });
 
   return reminderEmbed;
 }
@@ -119,7 +119,7 @@ Details and sets from a user's three latest tournaments. Providing no arguments 
 Please keep in mind that the search algorithm will find up to 15 tournaments, including admined/spectated tournaments. It may not show three tournaments if a user has admined/spectated multiple tournaments.
 `)
     .setImage('https://i.imgur.com/G4LzGzX.png')
-    .setFooter({ text: `Command 1 of 1`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
   return accountsEmbed;
 }
 
@@ -148,7 +148,7 @@ Stops DQ pinging.
 ${label}
 ${descriptions[index]}`)
     .setImage(examples[index])
-    .setFooter({ text: `Command ${index + 1} of 3`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command ${index + 1} of 3`, iconURL: footerIcon });
 
   if (index === 1) DQPingingEmbed.setThumbnail('https://i.imgur.com/Br9Vcmo.png');
 
@@ -196,7 +196,7 @@ Announces a given tournament with registration/event times, streams, and additio
 ${label}
 ${descriptions[index]}`)
     .setImage(examples[index])
-    .setFooter({ text: `Command ${index + 1} of 4`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command ${index + 1} of 4`, iconURL: footerIcon });
 
   if (index > 0) announceEmbed.setThumbnail(thumbnails[index - 1]);
 
@@ -224,7 +224,7 @@ Sets the language that Tournabot uses. Language localization does not apply to D
 ${label}
 ${descriptions[index]}`)
     .setImage(examples[index])
-    .setFooter({ text: `Command ${index + 1} of 2`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command ${index + 1} of 2`, iconURL: footerIcon });
 
   return localizationEmbed;
 }
@@ -260,7 +260,7 @@ Pings all users that are active for matchmaking, deletes the mentions, and then 
 ${label}
 ${descriptions[index]}`)
     .setImage(examples[index])
-    .setFooter({ text: `Command ${index + 1} of 5`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command ${index + 1} of 5`, iconURL: footerIcon });
 
   return matchmakingEmbed;
 }
@@ -278,7 +278,7 @@ Searches for upcoming tournaments by game. The \`<game>\` argument is not case-s
 Currently supported games: \`Super Smash Bros. Ultimate\`, \`Valorant\`
 `)
     .setImage('https://i.imgur.com/nesqtNb.png')
-    .setFooter({ text: `Command 1 of 1`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
 
   return searchEmbed;
 }
@@ -296,7 +296,7 @@ Assign a custom prefix for TournaBot legacy commands. Please note that prefixes 
 \`t!set prefix <prefix (optional)>\` and \`t!help\` can always be run with the original prefix, \`t!\`.
 `)
     .setImage('https://i.imgur.com/uLWYdgM.png')
-    .setFooter({ text: `Command 1 of 1`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
   return prefixEmbed;
 }
 
@@ -304,7 +304,7 @@ const generateInfoEmbed = index => {
   const infoEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`For any inquiries or help, feel free to join the [support/development server](https://discord.gg/ssYPUk6Snc) or contact the developer/owner of TournaBot, **F0ne#1933**. Please upvote the bot on the [top.gg page](https://top.gg/bot/719283403698077708) if you can as well! TournaBot is also a open-source project, you can find the code at the [Github repository](https://github.com/Ayaan-Govil/TournaBot).`)
-    .setFooter({ text: `TournaBot`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+    .setFooter({ text: `TournaBot`, iconURL: footerIcon });
 
   return infoEmbed;
 }

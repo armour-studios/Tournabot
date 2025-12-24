@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, PermissionFlagsBits } = require('discord.js');
 const fetch = require('node-fetch');
 const urllib = require('urllib');
-const { convertEpoch, convertEpochToClock, queryAPI } = require('../functions');
+const { convertEpoch, convertEpochToClock, queryAPI, footerIcon } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -115,11 +115,11 @@ module.exports = {
       const pingingRole = pingRoleResult ? `<@&${pingRoleResult.role}>` : '@everyone';
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Tournament Announcement', iconURL: 'https://i.imgur.com/v1hKkQ6.png' }) // Start.gg Logo
+        .setAuthor({ name: 'Tournament Announcement', iconURL: footerIcon }) // Start.gg Logo
         .setTitle(tournament.name)
         .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
         .setColor('#FF3636') // Start.gg Red
-        .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || 'https://i.imgur.com/v1hKkQ6.png')
+        .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
         .setDescription(`${announceText}`)
         .addFields(
           { name: '📅 Registration Closes', value: convertEpoch(tournament.registrationClosesAt, cityTimezone), inline: true },
@@ -127,7 +127,7 @@ module.exports = {
           { name: '🏆 Events', value: eventsInfo } // Events formatted nicely
         )
         .setImage(tournament.images?.find(i => i.type === 'banner')?.url) // Use banner if available
-        .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+        .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
         .setTimestamp();
 
       if (streams) embed.addFields({ name: '📺 Streams', value: streams });

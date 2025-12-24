@@ -169,7 +169,7 @@ module.exports = {
       const generateEmbed = (index) => {
         const t = tournaments[index];
         const embed = new EmbedBuilder()
-          .setAuthor({ name: `Tournament Results: ${name}`, iconURL: imageurl || 'https://i.imgur.com/gUwhkw3.png' })
+          .setAuthor({ name: `Tournament Results: ${name}`, iconURL: imageurl || footerIcon })
           .setTitle(t.name)
           .setURL(t.url)
           .setColor(sideColor)
@@ -178,7 +178,7 @@ module.exports = {
             { name: '📊 Event Placements', value: t.stats.map(e => `**${e.name}**: ${e.placement}/${e.total}`).join('\n') || 'N/A', inline: false },
             { name: '⚔️ Recent Sets', value: t.sets.join('\n') || 'N/A', inline: false }
           )
-          .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+          .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
           .setTimestamp();
         return embed;
       };

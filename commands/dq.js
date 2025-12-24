@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = 
 const urllib = require('urllib');
 const replaceall = require('replaceall');
 const accurateInterval = require('accurate-interval');
-const { queryAPI, sendMessage } = require('../functions');
+const { queryAPI, sendMessage, footerIcon } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -253,7 +253,7 @@ async function pingUser(set, roundText, dqChannel) {
             .setTitle('⚔️ Match Called')
             .setColor('#FF3636')
             .setDescription(`${entrantMentions[0]} vs ${entrantMentions[1]}\n${roundText}`)
-            .setFooter({ text: 'Powered by TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' })
+            .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
             .setTimestamp();
 
         const modButton = new ActionRowBuilder().addComponents(

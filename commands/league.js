@@ -1,5 +1,5 @@
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
-const { queryAPI } = require('../functions');
+const { queryAPI, footerIcon } = require('../functions');
 const leagueModel = require('../database/models/league');
 
 module.exports = {
@@ -94,7 +94,7 @@ module.exports = {
                 .setTitle('Linked Leagues')
                 .setColor('#222326')
                 .setDescription(leagues.map(l => `• [${l.slug}](https://start.gg/league/${l.slug})`).join('\n'))
-                .setFooter({ text: 'TournaBot', iconURL: 'https://i.imgur.com/gUwhkw3.png' });
+                .setFooter({ text: 'TournaBot', iconURL: footerIcon });
 
             await interaction.reply({ embeds: [embed] });
         }
