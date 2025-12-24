@@ -1,6 +1,7 @@
 // Dependencies
 const Discord = require('discord.js');
-const { PREFIX, DISCORDTOKEN, ALTDISCORDTOKEN } = require('./config.json');
+require('dotenv').config();
+const { PREFIX, DISCORDTOKEN, ALTDISCORDTOKEN } = process.env;
 const database = require('./database/database');
 const urllib = require('urllib');
 const replaceall = require('replaceall');

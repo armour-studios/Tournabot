@@ -1,0 +1,15 @@
+services:
+  - type: worker
+    name: tournabot
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PREFIX
+        sync: false
+      - key: DISCORDTOKEN
+        sync: false
+      - key: SMASHGGTOKEN
+        sync: false
+      - key: MONGOPASS
+        sync: false

@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { SMASHGGTOKEN } = require('./config.json');
+const { SMASHGGTOKEN } = process.env;
 const languageModel = require('./database/models/language');
 const fetch = require('node-fetch');
 

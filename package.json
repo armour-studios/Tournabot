@@ -13,13 +13,14 @@
   "dependencies": {
     "accurate-interval": "^1.0.9",
     "discord.js": "^12.4.1",
+    "dotenv": "^17.2.3",
     "es6-promise": "^4.2.8",
     "fastest-levenshtein": "^1.0.12",
     "mongodb": "^3.6.3",
-    "mongoose": "^5.10.13",
-    "node-fetch": "^2.6.1",
-    "node-vibrant": "^3.1.6",
-    "nodemon": "^2.0.7",
+    "mongoose": "^5.13.22",
+    "node-fetch": "^2.7.0",
+    "node-vibrant": "^4.0.3",
+    "nodemon": "^3.1.11",
     "replaceall": "^0.1.6",
     "set-accurate-timeout": "^1.0.1",
     "urllib": "^2.23.0"

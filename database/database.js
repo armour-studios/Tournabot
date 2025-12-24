@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { MONGOPASS } = require('../config.json');
+const { MONGOPASS } = process.env;
 
 
 // Specify the connection string (MONGOPASS) before running

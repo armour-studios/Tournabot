@@ -1,6 +1,6 @@
 // Dependencies
 const Discord = require('discord.js');
-const { SMASHGGTOKEN } = require('../config.json');
+const { SMASHGGTOKEN } = process.env;
 const fetch = require('node-fetch');
 const urllib = require('urllib');
 const replaceall = require('replaceall');
