@@ -27,7 +27,7 @@ http.createServer((req, res) => {
   console.log(`Health check server listening on port ${port}`);
 });
 
-const client = new Discord.Client();
+const client = new Discord.Client({ ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MEMBERS', 'GUILD_PRESENCES'] } });
 client.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -74,6 +74,7 @@ client.once('ready', async () => {
     }
 
     console.log('Connected to MongoDB and ready for queries.');
+    console.log(`Bot loaded with PREFIX: "${PREFIX}" (fallback to t!)`);
 
     client.user.setActivity('for t!help - v4.1.8', { type: 'WATCHING' });
 

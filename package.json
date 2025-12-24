@@ -12,7 +12,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "accurate-interval": "^1.0.9",
-    "discord.js": "^12.4.1",
+    "discord.js": "^12.5.3",
     "dotenv": "^17.2.3",
     "es6-promise": "^4.2.8",
     "fastest-levenshtein": "^1.0.12",
