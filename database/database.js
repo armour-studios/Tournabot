@@ -13,6 +13,8 @@ const options = {
 // Handle potential undefined MONGOPASS
 if (!MONGOPASS) {
     console.error('CRITICAL: MONGOPASS environment variable is missing!');
+} else {
+    console.log(`MONGOPASS is set (length: ${MONGOPASS.length}). Starts with: ${MONGOPASS.substring(0, 10)}...`);
 }
 
 module.exports = mongoose.connect(MONGOPASS, options);
