@@ -34,7 +34,6 @@ const client = new Discord.Client({
       'GUILD_MESSAGES',
       'GUILD_MEMBERS',
       'GUILD_PRESENCES',
-      'MESSAGE_CONTENT',
       'GUILD_MESSAGE_REACTIONS'
     ]
   }
