@@ -56,6 +56,7 @@ const commands = [
         .addSubcommand(subcommand => subcommand.setName('dqpingchannel').setDescription('Set the DQ pinging channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('matchfeed').setDescription('Set the Live Match Feed channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('standingschannel').setDescription('Set the Auto-Standings channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('seedchannel').setDescription('Set the Seed Generator output channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('pingrole').setDescription('Set the announcement ping role').addRoleOption(option => option.setName('role').setDescription('The role (leave empty to reset)')))
         .addSubcommand(subcommand => subcommand.setName('timezone').setDescription('Set the server timezone').addStringOption(option => option.setName('city').setDescription('Select a city').addChoices(
             { name: 'Los Angeles (PT)', value: 'America/Los_Angeles' },
@@ -74,7 +75,10 @@ const commands = [
         .addSubcommand(subcommand => subcommand.setName('list').setDescription('List linked leagues')),
     new SlashCommandBuilder().setName('test').setDescription('Admin testing commands')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-        .addSubcommand(subcommand => subcommand.setName('livefeed').setDescription('Test live match feed embeds').addStringOption(option => option.setName('url').setDescription('Tournament URL').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('livefeed').setDescription('Test live match feed embeds').addStringOption(option => option.setName('url').setDescription('Tournament URL').setRequired(true))),
+    new SlashCommandBuilder().setName('seed').setDescription('Generate tournament seeds for Rocket League')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .addSubcommand(subcommand => subcommand.setName('generate').setDescription('Generate seeds for an event').addStringOption(option => option.setName('url').setDescription('Start.gg event URL').setRequired(true)))
 ]
     .map(command => command.toJSON());
 

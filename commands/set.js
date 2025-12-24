@@ -105,6 +105,18 @@ module.exports = {
         }
         break;
 
+      case 'seedchannel':
+        const seedChannel = interaction.options.getChannel('channel');
+        if (!seedChannel) return interaction.reply('Please specify a channel.');
+        try {
+          await channelModel.findOneAndUpdate({ guildid: guildID }, { seedchannel: seedChannel.id }, { upsert: true });
+          await interaction.reply(`Seed generator output channel set to ${seedChannel} :white_check_mark:`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('Error setting seed channel.');
+        }
+        break;
+
       case 'pingrole':
         const role = interaction.options.getRole('role');
         try {
