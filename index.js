@@ -14,6 +14,7 @@ const { closest } = require('fastest-levenshtein');
 const { convertEpochToClock, sendMessage, queryAPI } = require('./functions');
 const remindLoop = require('./remind_loop');
 const leagueLoop = require('./league_loop');
+const liveLoop = require('./live_loop');
 const fs = require('fs');
 const http = require('http');
 
@@ -179,6 +180,7 @@ client.once('ready', async () => {
     // Loop for tracking and setting tournament reminders
     remindLoop(client);
     leagueLoop(client);
+    liveLoop(client);
   } catch (err) {
     console.error('CRITICAL: Failed to connect to MongoDB:', err);
     // Log the readyState to help debug

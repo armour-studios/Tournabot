@@ -67,6 +67,8 @@ module.exports = {
         }
         break;
 
+        break;
+
       case 'dqpingchannel':
         const dqChannel = interaction.options.getChannel('channel');
         if (!dqChannel) return interaction.reply('Please specify a channel.');
@@ -76,6 +78,30 @@ module.exports = {
         } catch (err) {
           console.error(err);
           await interaction.reply('Error setting DQ pinging channel.');
+        }
+        break;
+
+      case 'matchfeed':
+        const mfChannel = interaction.options.getChannel('channel');
+        if (!mfChannel) return interaction.reply('Please specify a channel.');
+        try {
+          await channelModel.findOneAndUpdate({ guildid: guildID }, { matchfeedchannel: mfChannel.id }, { upsert: true });
+          await interaction.reply(`Live Match Feed channel set to ${mfChannel} :white_check_mark:`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('Error setting Match Feed channel.');
+        }
+        break;
+
+      case 'standingschannel':
+        const stChannel = interaction.options.getChannel('channel');
+        if (!stChannel) return interaction.reply('Please specify a channel.');
+        try {
+          await channelModel.findOneAndUpdate({ guildid: guildID }, { standingschannel: stChannel.id }, { upsert: true });
+          await interaction.reply(`Auto-Standings channel set to ${stChannel} :white_check_mark:`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('Error setting Standings channel.');
         }
         break;
 

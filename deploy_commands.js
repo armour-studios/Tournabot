@@ -60,6 +60,8 @@ const commands = [
         .addSubcommand(subcommand => subcommand.setName('announcemessage').setDescription('Set the tournament announcement message').addStringOption(option => option.setName('message').setDescription('The message (leave empty to reset)')))
         .addSubcommand(subcommand => subcommand.setName('announcechannel').setDescription('Set the announcement channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('dqpingchannel').setDescription('Set the DQ pinging channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('matchfeed').setDescription('Set the Live Match Feed channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('standingschannel').setDescription('Set the Auto-Standings channel').addChannelOption(option => option.setName('channel').setDescription('The channel').setRequired(true)))
         .addSubcommand(subcommand => subcommand.setName('pingrole').setDescription('Set the announcement ping role').addRoleOption(option => option.setName('role').setDescription('The role (leave empty to reset)')))
         .addSubcommand(subcommand => subcommand.setName('timezone').setDescription('Set the server timezone').addStringOption(option => option.setName('city').setDescription('Select a city').addChoices(
             { name: 'Los Angeles (PT)', value: 'America/Los_Angeles' },
