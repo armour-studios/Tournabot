@@ -4,7 +4,7 @@ const generateHelpSelection = index => {
   const descriptions = [`
 :small_orange_diamond: **Accounts**
 
-TournaBot handles account linking between start.gg and Discord. Several commands are account-based.
+ArmourBot handles account linking between start.gg and Discord. Several commands are account-based.
 
 :small_orange_diamond: **Tournament Reminders**
 
@@ -36,7 +36,7 @@ Search for start.gg tournaments by game directly in your server.
 
 :small_orange_diamond: **Custom Prefix**
 
-Assign a custom prefix for TournaBot legacy commands.
+Assign a custom prefix for ArmourBot legacy commands.
 
 :small_orange_diamond: **More Info**
 
@@ -55,7 +55,7 @@ const generateAccountsEmbed = index => {
   const descriptions = [`
 > \`/account link <smash.gg profile URL>\`
 
-Links your smash.gg account and Discord account together, allowing TournaBot to do tasks between Discord and smash.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
+Links your smash.gg account and Discord account together, allowing ArmourBot to do tasks between Discord and smash.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
 
 Please read [this](https://help.smash.gg/en/articles/4100961-user-profiles) if you do not know how/where to find your profile.
 `, `
@@ -89,9 +89,9 @@ const generateReminderEmbed = index => {
 
 Toggles your tournament reminders. As long as your accounts are linked prior to toggling on, you will always be automatically messaged an hour before any tournament you sign-up for. You can go to the next page to see what the reminders look like.
 
-*PLEASE NOTE: By toggling on tournament reminders, you consent to TournaBot direct messaging you on Discord automatically.*
+*PLEASE NOTE: By toggling on tournament reminders, you consent to ArmourBot direct messaging you on Discord automatically.*
 `, `
-Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with TournaBot, it cannot message you.
+Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with ArmourBot, it cannot message you.
 `];
   const examples = ['https://i.imgur.com/XNFHbeJ.png', 'https://i.imgur.com/noJpDgz.png'];
 
@@ -128,13 +128,13 @@ const generateDQPingingEmbed = index => {
   const descriptions = [`
 > \`/set dqpingchannel <#channel>\`
 
-Before beginning DQ pinging, you need to set the channel that TournaBot will ping users in. This allows you to run \`/dq ping\` in a separate channel.
+Before beginning DQ pinging, you need to set the channel that ArmourBot will ping users in. This allows you to run \`/dq ping\` in a separate channel.
 `, `
 > \`/dq ping <tournament URL/start.gg short URL> <event_number (optional)> <event_name (optional)>\`
 
 Pings users in the DQ pinging channel a minute after their set is called (a minute after DQ timer has started). Specifying the event name or number as the second argument will ping only for that event, otherwise pinging will happen across all events (check example on the right to see how events are numbered). Pinging will automatically stop after six hours or when the tournament has ended.
 
-If your Discord account is not public on your start.gg profile and your accounts have not been linked through TournaBot, your start.gg username will be shown in bold instead.
+If your Discord account is not public on your start.gg profile and your accounts have not been linked through ArmourBot, your start.gg username will be shown in bold instead.
 `, `
 > \`/dq stop\`
 
@@ -160,7 +160,7 @@ const generateAnnounceEmbed = index => {
   const descriptions = [`
 > \`/set announcechannel <#channel>\`
 
-Before announcing a tournament, you need to set the channel that TournaBot will announce in. This allows you to run \`/announce\` in a separate channel.
+Before announcing a tournament, you need to set the channel that ArmourBot will announce in. This allows you to run \`/announce\` in a separate channel.
 `, `
 > \`/set announcemessage <message (optional)>\`
 
@@ -177,7 +177,7 @@ Announcements are formatted as such:
 <check-in time (if enabled)>
 
 <streams>\`\`\`
-Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by TournaBot.
+Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by ArmourBot.
 `, `
 > \`/set pingrole <@role/role name (optional)>\`
 
@@ -208,13 +208,13 @@ const generateLocalizationEmbed = index => {
   const descriptions = [`
 > \`/set timezone <city (optional)>\`
 
-Sets the timezone that TournaBot uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
+Sets the timezone that ArmourBot uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
 
 Currently supported cities: \`America/Los_Angeles\`, \`America/Phoenix\`, \`America/Denver\`, \`America/Regina\`, \`America/Chicago\`, \`America/New_York\`, \`Pacific/Honolulu\`
 `, `
 > \`/set language <code (optional)>\`
 
-Sets the language that Tournabot uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
+Sets the language that ArmourBot uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
 `];
   const examples = ['https://i.imgur.com/OOFBH0O.png', 'https://i.imgur.com/TEpnXU0.png'];
 
@@ -291,7 +291,7 @@ const generatePrefixEmbed = index => {
 
 > \`t!set prefix <prefix (optional)>\`
 
-Assign a custom prefix for TournaBot legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
+Assign a custom prefix for ArmourBot legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
 
 \`t!set prefix <prefix (optional)>\` and \`t!help\` can always be run with the original prefix, \`t!\`.
 `)
@@ -303,8 +303,8 @@ Assign a custom prefix for TournaBot legacy commands. Please note that prefixes 
 const generateInfoEmbed = index => {
   const infoEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
-    .setDescription(`For any inquiries or help, feel free to join the [support/development server](https://discord.gg/ssYPUk6Snc) or contact the developer/owner of TournaBot, **F0ne#1933**. Please upvote the bot on the [top.gg page](https://top.gg/bot/719283403698077708) if you can as well! TournaBot is also a open-source project, you can find the code at the [Github repository](https://github.com/Ayaan-Govil/TournaBot).`)
-    .setFooter({ text: `TournaBot`, iconURL: footerIcon });
+    .setDescription(`ArmourBot is your all-in-one tournament management solution powered by Start.gg. Built by Armour Studios for the competitive gaming community.`)
+    .setFooter({ text: `ArmourBot`, iconURL: footerIcon });
 
   return infoEmbed;
 }

@@ -120,7 +120,7 @@ async function remindLoop(client) {
         { name: 'Events', value: events || 'N/A', inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: 'TournaBot', iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+      .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
 
     if (streams) embed.addFields({ name: 'Streams', value: streams });
 

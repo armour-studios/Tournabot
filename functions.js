@@ -128,5 +128,6 @@ module.exports = {
   convertEpochToClock: convertEpochToClock,
   sendMessage: sendMessage,
   queryAPI: queryAPI,
-  footerIcon: 'https://i.imgur.com/gUwhkw3.png' // REPLACE THIS WITH YOUR NEW LOGO URL
+  footerIcon: 'https://i.imgur.com/gUwhkw3.png', // Main ArmourBot Logo
+  startggIcon: 'https://i.imgur.com/P4u3K0j.png' // Start.gg Logo
 };

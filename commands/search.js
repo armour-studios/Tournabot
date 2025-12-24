@@ -18,6 +18,20 @@ module.exports = {
     };
     return this.executeSlash(mockInteraction, client);
   },
+  async autocomplete(interaction, client) {
+    const focusedValue = interaction.options.getFocused().toLowerCase();
+    const games = [
+      { name: 'Super Smash Bros. Ultimate', value: 'ultimate' },
+      { name: 'Valorant', value: 'valorant' }
+    ];
+
+    const filtered = games.filter(game =>
+      game.name.toLowerCase().includes(focusedValue) ||
+      game.value.includes(focusedValue)
+    );
+
+    await interaction.respond(filtered.slice(0, 25));
+  },
   async executeSlash(interaction, client) {
     const gameNameInput = interaction.options.getString('game');
     let videogameId;

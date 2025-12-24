@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const fetch = require('node-fetch');
-const { convertEpoch, convertEpochToClock, queryAPI, footerIcon } = require('./functions');
+const { convertEpoch, convertEpochToClock, queryAPI, footerIcon, startggIcon } = require('./functions');
 
 // MongoDB Models
 const leagueModel = require('./database/models/league');
@@ -162,11 +162,11 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
 
         // Format Description
         const eventsInfo = tournament.events.map(event => {
-            let info = `**${event.name}** - ${convertEpoch(event.startAt, cityTimezone)}`;
+            let info = `**${event.name}** - <t:${event.startAt}:F>`;
             if (event.checkInEnabled) {
-                const open = convertEpochToClock(event.startAt - event.checkInBuffer - event.checkInDuration, cityTimezone, false);
-                const close = convertEpochToClock(event.startAt - event.checkInBuffer, cityTimezone, false);
-                info += `\nCheck-in: ${open} - ${close}`;
+                const openTime = event.startAt - event.checkInBuffer - event.checkInDuration;
+                const closeTime = event.startAt - event.checkInBuffer;
+                info += `\nCheck-in: <t:${openTime}:t> - <t:${closeTime}:t>`;
             }
             return info;
         }).join('\n\n');
@@ -177,19 +177,19 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
             .join('\n');
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: 'League Announcement', iconURL: footerIcon })
+            .setAuthor({ name: 'League Announcement', iconURL: startggIcon })
             .setTitle(tournament.name)
             .setURL(`https://start.gg/${tournament.url || 'tournament/' + tournament.slug}`)
             .setColor('#FF3636')
             .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
             .setDescription(`${announceText}`)
             .addFields(
-                { name: '📅 Registration Closes', value: convertEpoch(tournament.registrationClosesAt, cityTimezone), inline: true },
+                { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },
                 { name: '📍 Status', value: 'Open', inline: true },
                 { name: '🏆 Events', value: eventsInfo }
             )
             .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-            .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
+            .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
             .setTimestamp();
 
         if (streams) embed.addFields({ name: '📺 Streams', value: streams });

@@ -94,7 +94,7 @@ module.exports = {
                 .setTitle('Linked Leagues')
                 .setColor('#222326')
                 .setDescription(leagues.map(l => `• [${l.slug}](https://start.gg/league/${l.slug})`).join('\n'))
-                .setFooter({ text: 'TournaBot', iconURL: footerIcon });
+                .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
 
             await interaction.reply({ embeds: [embed] });
         }

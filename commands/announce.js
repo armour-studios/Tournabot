@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, PermissionFlagsBits } = require('discord.js');
 const fetch = require('node-fetch');
 const urllib = require('urllib');
-const { convertEpoch, convertEpochToClock, queryAPI, footerIcon } = require('../functions');
+const { convertEpoch, convertEpochToClock, queryAPI, footerIcon, startggIcon } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -94,11 +94,11 @@ module.exports = {
       const cityTimezone = tzResult ? tzResult.timezone : 'America/Los_Angeles';
 
       const eventsInfo = tournament.events.map(event => {
-        let info = `**${event.name}** - ${convertEpoch(event.startAt, cityTimezone)}`;
+        let info = `**${event.name}** - <t:${event.startAt}:F>`;
         if (event.checkInEnabled) {
-          const open = convertEpochToClock(event.startAt - event.checkInBuffer - event.checkInDuration, cityTimezone, false);
-          const close = convertEpochToClock(event.startAt - event.checkInBuffer, cityTimezone, false);
-          info += `\nCheck-in: ${open} - ${close}`;
+          const openTime = event.startAt - event.checkInBuffer - event.checkInDuration;
+          const closeTime = event.startAt - event.checkInBuffer;
+          info += `\nCheck-in: <t:${openTime}:t> - <t:${closeTime}:t>`;
         }
         return info;
       }).join('\n\n');
@@ -115,19 +115,19 @@ module.exports = {
       const pingingRole = pingRoleResult ? `<@&${pingRoleResult.role}>` : '@everyone';
 
       const embed = new EmbedBuilder()
-        .setAuthor({ name: 'Tournament Announcement', iconURL: footerIcon }) // Start.gg Logo
+        .setAuthor({ name: 'Tournament Announcement', iconURL: startggIcon }) // Start.gg Logo
         .setTitle(tournament.name)
         .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
         .setColor('#FF3636') // Start.gg Red
         .setThumbnail(tournament.images?.find(i => i.type === 'profile')?.url || footerIcon)
         .setDescription(`${announceText}`)
         .addFields(
-          { name: '📅 Registration Closes', value: convertEpoch(tournament.registrationClosesAt, cityTimezone), inline: true },
-          { name: '📍 Status', value: 'Open', inline: true }, // Placeholder logic, could be refined
-          { name: '🏆 Events', value: eventsInfo } // Events formatted nicely
+          { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },
+          { name: '📍 Status', value: 'Open', inline: true },
+          { name: '🏆 Events', value: eventsInfo }
         )
-        .setImage(tournament.images?.find(i => i.type === 'banner')?.url) // Use banner if available
-        .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
+        .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
+        .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
         .setTimestamp();
 
       if (streams) embed.addFields({ name: '📺 Streams', value: streams });

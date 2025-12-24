@@ -22,7 +22,7 @@ const http = require('http');
 const port = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('TournaBot is online!\n');
+  res.end('ArmourBot is online!\n');
 }).listen(port, () => {
   console.log(`Health check server listening on port ${port} `);
 });
@@ -201,7 +201,7 @@ client.on('guildCreate', guild => {
   });
   const joinEmbed = new EmbedBuilder()
     .setColor('#222326')
-    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. If you enjoy TournaBot's features, please upvote it on the [top.gg page](https://top.gg/bot/719283403698077708)!`);
+    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. ArmourBot is your all-in-one tournament management solution!`);
   defaultChannel.send({ embeds: [joinEmbed] }).catch(err => console.log(err));
   console.log('Added to: ' + guild.name);
 });

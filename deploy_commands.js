@@ -47,7 +47,7 @@ const commands = [
         .addSubcommand(subcommand => subcommand.setName('ping').setDescription('Ping online users for matchmaking')),
     new SlashCommandBuilder().setName('remind').setDescription('Toggle tournament reminders'),
     new SlashCommandBuilder().setName('search').setDescription('Search for upcoming tournaments by game')
-        .addStringOption(option => option.setName('game').setDescription('The game to search for (Ultimate/Valorant)').setRequired(true)),
+        .addStringOption(option => option.setName('game').setDescription('The game to search for (Ultimate/Valorant)').setRequired(true).setAutocomplete(true)),
     new SlashCommandBuilder().setName('dq').setDescription('Manage DQ pinging for tournaments')
         .addSubcommand(subcommand =>
             subcommand.setName('ping').setDescription('Start DQ pinging for a tournament')

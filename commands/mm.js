@@ -121,7 +121,7 @@ module.exports = {
             .setTitle('Matchmaking')
             .setColor('#222326')
             .setDescription(`**Role:** ${mmRole ? mmRole : 'Deleted Role'}\n**Online for Matchmaking:**\n${userList.length > 0 ? userList.join('\n') : '*None*'}`)
-            .setFooter({ text: 'TournaBot', iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+            .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
 
           await interaction.reply({ embeds: [embed] });
         } catch (err) {

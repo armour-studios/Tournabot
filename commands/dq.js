@@ -253,7 +253,7 @@ async function pingUser(set, roundText, dqChannel) {
             .setTitle('⚔️ Match Called')
             .setColor('#FF3636')
             .setDescription(`${entrantMentions[0]} vs ${entrantMentions[1]}\n${roundText}`)
-            .setFooter({ text: 'Powered by TournaBot', iconURL: footerIcon })
+            .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
             .setTimestamp();
 
         const modButton = new ActionRowBuilder().addComponents(

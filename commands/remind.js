@@ -34,7 +34,7 @@ module.exports = {
         .setColor(newStatus ? '#43b581' : '#f04747')
         .setTitle('Tournament Reminders')
         .setDescription(`Your tournament reminders have been toggled **${newStatus ? 'ON' : 'OFF'}**!`)
-        .setFooter({ text: 'TournaBot', iconURL: 'https://cdn.discordapp.com/attachments/719461475848028201/777094320531439636/image.png' });
+        .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
 
       await interaction.reply({ embeds: [embed] });
 
