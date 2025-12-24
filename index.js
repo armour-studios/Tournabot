@@ -16,6 +16,16 @@ const { closest } = require('fastest-levenshtein');
 const { convertEpochToClock, sendMessage, queryAPI } = require('./functions');
 const remindLoop = require('./remind_loop');
 const fs = require('fs');
+const http = require('http');
+
+// Create a dummy server for Render's health check
+const port = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('TournaBot is online!\n');
+}).listen(port, () => {
+  console.log(`Health check server listening on port ${port}`);
+});
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
