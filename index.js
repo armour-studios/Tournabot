@@ -27,7 +27,18 @@ http.createServer((req, res) => {
   console.log(`Health check server listening on port ${port}`);
 });
 
-const client = new Discord.Client({ ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MEMBERS', 'GUILD_PRESENCES'] } });
+const client = new Discord.Client({
+  ws: {
+    intents: [
+      'GUILDS',
+      'GUILD_MESSAGES',
+      'GUILD_MEMBERS',
+      'GUILD_PRESENCES',
+      'MESSAGE_CONTENT',
+      'GUILD_MESSAGE_REACTIONS'
+    ]
+  }
+});
 client.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
