@@ -32,7 +32,7 @@ module.exports = {
     return this.executeSlash(mockInteraction, client);
   },
   async executeSlash(interaction, client) {
-    const action = interaction.options.getString('action') || 'status';
+    const action = interaction.options.getSubcommand();
     const url = interaction.options.getString('url');
 
     const user = interaction.user || interaction.author;
@@ -43,9 +43,9 @@ module.exports = {
           return interaction.reply('Please provide your smash.gg profile URL. Format: `/account link url:https://smash.gg/user/your-profile`');
         }
         let accountSlug = url;
-        if (accountSlug.startsWith('https://smash.gg/user/')) {
+        if (accountSlug.includes('smash.gg/user/') || accountSlug.includes('start.gg/user/')) {
           accountSlug = replaceall('/', '', accountSlug);
-          accountSlug = accountSlug.replace('https:smash.gguser', '');
+          accountSlug = accountSlug.replace('https:smash.gguser', '').replace('https:start.gguser', '').replace('https:www.smash.gguser', '').replace('https:www.start.gguser', '');
           let discordID = user.id;
           let discordTag = user.tag;
 
@@ -61,7 +61,7 @@ module.exports = {
                 profileslug: accountSlug,
                 reminder: false
               }).save();
-              await interaction.reply({ content: '**Your Discord account and smash.gg account are now linked!**', ephemeral: true });
+              await interaction.reply({ content: '**Your Discord account and start.gg account are now linked!**', ephemeral: true });
             }
             console.log(`linked/re-linked ${discordTag}`);
           } catch (err) {
@@ -69,7 +69,7 @@ module.exports = {
             await interaction.reply({ content: 'There was an error linking your account.', ephemeral: true });
           }
         } else {
-          await interaction.reply({ content: 'I could not recognize the profile URL. It should start with `https://smash.gg/user/`', ephemeral: true });
+          await interaction.reply({ content: 'I could not recognize the profile URL. It should start with `https://start.gg/user/` or `https://smash.gg/user/`', ephemeral: true });
         }
         break;
 
