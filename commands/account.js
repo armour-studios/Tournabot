@@ -4,7 +4,7 @@ const { SMASHGGTOKEN } = process.env;
 const fetch = require('node-fetch');
 const urllib = require('urllib');
 const replaceall = require('replaceall');
-const { sendMessage } = require('../functions');
+const { sendMessage, queryAPI } = require('../functions');
 
 // MongoDB Models
 const accountModel = require('../database/models/account');
