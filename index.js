@@ -120,15 +120,18 @@ client.on('message', message => {
   if (message.author.bot) return;
 
   let prefix = PREFIX || 't!';
-  console.log(`Message received: "${message.content}" from ${message.author.tag}. Current prefix: ${prefix}`);
+  if (message.content.toLowerCase() === 'ping' || message.content === `${prefix}ping`) {
+    return message.reply(`pong! (Current Prefix: ${prefix})`).catch(err => console.log(err));
+  }
 
   if (message.content.startsWith(`${prefix}help`) || message.content.startsWith(`${prefix}set prefix`)) {
     const command = message.content.slice(prefix.length).trim().split(/ +/).shift().toLowerCase();
     try {
+      console.log(`Executing help/set command: ${command}`);
       client.commands.get(command).execute(message, client, message);
       return;
     } catch (err) {
-      console.log(err);
+      console.log(`Error executing ${command}:`, err);
     }
     return;
   }
