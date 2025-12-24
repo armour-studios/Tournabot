@@ -109,9 +109,9 @@ client.on('message', message => {
   if (message.author.bot) return;
 
   let prefix = PREFIX || 't!';
-  console.log(`Message received: "${message.content}" from ${message.author.tag} in ${message.guild ? message.guild.name : 'DM'}. Current prefix: ${prefix}`);
+  console.log(`Message received: "${message.content}" from ${message.author.tag}. Current prefix: ${prefix}`);
 
-  if (message.content.startsWith('t!help') || message.content.startsWith('t!set prefix')) {
+  if (message.content.startsWith(`${prefix}help`) || message.content.startsWith(`${prefix}set prefix`)) {
     const command = message.content.slice(prefix.length).trim().split(/ +/).shift().toLowerCase();
     try {
       client.commands.get(command).execute(message, client, message);
