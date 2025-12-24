@@ -75,7 +75,7 @@ const commands = [
     new SlashCommandBuilder().setName('league').setDescription('Manage automated league announcements')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addSubcommand(subcommand => subcommand.setName('link').setDescription('Link a league to track').addStringOption(option => option.setName('url').setDescription('The League URL').setRequired(true)))
-        .addSubcommand(subcommand => subcommand.setName('unlink').setDescription('Unlink a league').addStringOption(option => option.setName('url').setDescription('The League URL or Slug').setRequired(true)))
+        .addSubcommand(subcommand => subcommand.setName('unlink').setDescription('Unlink a league').addStringOption(option => option.setName('url').setDescription('The League URL or Slug').setRequired(true).setAutocomplete(true)))
         .addSubcommand(subcommand => subcommand.setName('list').setDescription('List linked leagues'))
 ]
     .map(command => command.toJSON());

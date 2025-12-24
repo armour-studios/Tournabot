@@ -5,6 +5,15 @@ const leagueModel = require('../database/models/league');
 module.exports = {
     name: 'league',
     description: 'Manage automated league announcements.',
+    async autocomplete(interaction, client) {
+        const focusedValue = interaction.options.getFocused();
+        const leagues = await leagueModel.find({ guildid: interaction.guild.id });
+        const choices = leagues.map(l => ({ name: l.slug, value: l.slug }));
+        const filtered = choices.filter(choice => choice.name.startsWith(focusedValue));
+        await interaction.respond(
+            filtered.slice(0, 25)
+        );
+    },
     async executeSlash(interaction, client) {
         if (!interaction.guild) return interaction.reply('This command can only be used in a server.');
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
