@@ -4,6 +4,12 @@ require('dotenv').config();
 const { DISCORDTOKEN, DISCORD_TOKEN, CLIENT_ID } = process.env;
 const token = DISCORDTOKEN || DISCORD_TOKEN;
 
+console.log('--- DEPLOYMENT SCRIPT START ---');
+console.log(`Environment Checks:`);
+console.log(`- DISCORDTOKEN present: ${!!DISCORDTOKEN}`);
+console.log(`- DISCORD_TOKEN present: ${!!DISCORD_TOKEN}`);
+console.log(`- CLIENT_ID in env: ${!!CLIENT_ID}`);
+
 if (!token) {
     console.error('CRITICAL: No token found in environment. Please create a .env file with DISCORDTOKEN=your_token_here');
     process.exit(1);
@@ -11,6 +17,7 @@ if (!token) {
 
 // Use CLIENT_ID from env, or extract from token as fallback
 const clientId = CLIENT_ID || Buffer.from(token.split('.')[0], 'base64').toString();
+console.log(`- Using Client ID: ${clientId}`);
 
 const commands = [
     new SlashCommandBuilder().setName('help').setDescription('List all commands or info about a specific command')

@@ -235,7 +235,7 @@ module.exports = {
 
           } catch (error) {
             console.error(error);
-            await interaction.editReply('An error occurred while checking tournament status.');
+            await interaction.editReply(`An error occurred while checking tournament status: \`${error.message || error}\``);
           }
         }
         break;
