@@ -1,0 +1,98 @@
+[2026-02-05T01:30:31.157Z] Starting live loop cycle...
+[2026-02-05T01:30:33.023Z] Live loop cycle complete.
+[2026-02-05T01:32:38.880Z] Starting live loop cycle...
+[2026-02-05T01:32:41.169Z] API Response for slug queen-city-clash-rocket-league-spring-2026-lan: "Errors"
+[2026-02-05T01:32:41.170Z] API Errors: [{"message":"Your query complexity is too high. A maximum of 1000 objects may be returned by each request. (actual: 1244)"}]
+[2026-02-05T01:32:41.170Z] Live loop cycle complete.
+[2026-02-05T01:34:16.010Z] Starting live loop cycle...
+[2026-02-05T01:34:16.610Z] API Overview for slug 100-weekly-rocket-rush-season-1: "Errors"
+[2026-02-05T01:34:16.610Z] API Errors: [{"message":"Cannot query field \"tournaments\" on type \"League\". Did you mean \"tournamentType\"?","extensions":{"category":"graphql"},"locations":[{"line":3,"column":29}],"errorId":"85a83d"}]
+[2026-02-05T01:34:16.873Z] API Overview for slug 100-3v3-weekly-rocket-rush-season-1: "Errors"
+[2026-02-05T01:34:16.873Z] API Errors: [{"message":"Cannot query field \"tournaments\" on type \"League\". Did you mean \"tournamentType\"?","extensions":{"category":"graphql"},"locations":[{"line":3,"column":29}],"errorId":"6d5cf6"}]
+[2026-02-05T01:34:17.167Z] API Overview for slug queen-city-clash-rocket-league-spring-2026-lan: "Success Data"
+[2026-02-05T01:34:17.168Z] Processing tournament: Queen City Clash Rocket League Spring 2026 LAN with 4 events.
+[2026-02-05T01:34:17.168Z] Deep-checking event: Qualifier 1 (ID: 1512450, State: ACTIVE)
+[2026-02-05T01:34:18.323Z] Deep fetch failed for event Qualifier 1: [{"message":"Your query complexity is too high. A maximum of 1000 objects may be returned by each request. (actual: 1239)"}]
+[2026-02-05T01:34:18.324Z] Deep-checking event: Qualifier 2 (ID: 1512451, State: CREATED)
+[2026-02-05T01:34:18.734Z] Deep fetch success for Qualifier 2. Processing...
+[2026-02-05T01:34:18.735Z] Found 0 sets for event Qualifier 2
+[2026-02-05T01:34:18.737Z] Deep-checking event: Qualifier 3 (ID: 1512452, State: CREATED)
+[2026-02-05T01:34:19.283Z] Deep fetch success for Qualifier 3. Processing...
+[2026-02-05T01:34:19.284Z] Found 0 sets for event Qualifier 3
+[2026-02-05T01:34:19.286Z] Deep-checking event: LAN (ID: 1512453, State: CREATED)
+[2026-02-05T01:34:19.636Z] Deep fetch success for LAN. Processing...
+[2026-02-05T01:34:19.637Z] Found 0 sets for event LAN
+[2026-02-05T01:34:19.638Z] Live loop cycle complete.
+[2026-02-05T01:35:18.884Z] Starting live loop cycle...
+[2026-02-05T01:35:19.195Z] API Overview for slug 100-weekly-rocket-rush-season-1: "Errors"
+[2026-02-05T01:35:19.195Z] API Errors: [{"message":"Field \"afterDate\" is not defined by type LeagueEventsFilter.","extensions":{"category":"graphql"},"locations":[{"line":4,"column":55}],"errorId":"a45f30"},{"message":"Field \"beforeDate\" is not defined by type LeagueEventsFilter.","extensions":{"category":"graphql"},"locations":[{"line":4,"column":74}],"errorId":"306e3e"}]
+[2026-02-05T01:35:19.636Z] API Overview for slug 100-3v3-weekly-rocket-rush-season-1: "Errors"
+[2026-02-05T01:35:19.636Z] API Errors: [{"message":"Field \"afterDate\" is not defined by type LeagueEventsFilter.","extensions":{"category":"graphql"},"locations":[{"line":4,"column":55}],"errorId":"636f2d"},{"message":"Field \"beforeDate\" is not defined by type LeagueEventsFilter.","extensions":{"category":"graphql"},"locations":[{"line":4,"column":74}],"errorId":"8ab60f"}]
+[2026-02-05T01:35:19.944Z] API Overview for slug queen-city-clash-rocket-league-spring-2026-lan: "Success Data"
+[2026-02-05T01:35:19.945Z] Processing tournament: Queen City Clash Rocket League Spring 2026 LAN with 4 events.
+[2026-02-05T01:35:19.945Z] Deep-checking event: Qualifier 1 (ID: 1512450, State: ACTIVE)
+[2026-02-05T01:35:21.794Z] Sets fetch failed for event Qualifier 1: [{"message":"Your query complexity is too high. A maximum of 1000 objects may be returned by each request. (actual: 1171)"}]
+[2026-02-05T01:35:21.794Z] Deep-checking event: Qualifier 2 (ID: 1512451, State: CREATED)
+[2026-02-05T01:35:22.330Z] Granular fetch success for Qualifier 2. Processing...
+[2026-02-05T01:35:22.331Z] Found 0 sets for event Qualifier 2
+[2026-02-05T01:35:22.334Z] Deep-checking event: Qualifier 3 (ID: 1512452, State: CREATED)
+[2026-02-05T01:35:22.796Z] Granular fetch success for Qualifier 3. Processing...
+[2026-02-05T01:35:22.796Z] Found 0 sets for event Qualifier 3
+[2026-02-05T01:35:22.798Z] Deep-checking event: LAN (ID: 1512453, State: CREATED)
+[2026-02-05T01:35:23.268Z] Granular fetch success for LAN. Processing...
+[2026-02-05T01:35:23.269Z] Found 0 sets for event LAN
+[2026-02-05T01:35:23.270Z] Live loop cycle complete.
+[2026-02-05T01:36:32.108Z] Starting live loop cycle...
+[2026-02-05T01:36:33.341Z] API Overview for slug 100-weekly-rocket-rush-season-1: "Success Data"
+[2026-02-05T01:36:34.315Z] API Overview for slug 100-3v3-weekly-rocket-rush-season-1: "Success Data"
+[2026-02-05T01:36:34.512Z] API Overview for slug queen-city-clash-rocket-league-spring-2026-lan: "Success Data"
+[2026-02-05T01:36:34.512Z] Processing tournament: Queen City Clash Rocket League Spring 2026 LAN with 4 events.
+[2026-02-05T01:36:34.513Z] Checking event: Qualifier 1 (ID: 1512450, State: ACTIVE)
+[2026-02-05T01:36:35.111Z] Found 40 sets for event Qualifier 1. Scanning for updates...
+[2026-02-05T01:36:35.111Z] Triggering deep fetch for set Losers Round 2 (98957822)
+[2026-02-05T01:36:35.708Z] Triggering deep fetch for set Losers Round 2 (98957829)
+[2026-02-05T01:36:36.514Z] Triggering deep fetch for set Winners Round 3 (98957709)
+[2026-02-05T01:36:37.059Z] Triggering deep fetch for set Winners Round 3 (98957714)
+[2026-02-05T01:36:37.659Z] Triggering deep fetch for set Losers Round 2 (98957828)
+[2026-02-05T01:36:38.083Z] Triggering deep fetch for set Losers Round 2 (98957823)
+[2026-02-05T01:36:38.707Z] Triggering deep fetch for set Winners Round 3 (98957715)
+[2026-02-05T01:36:43.183Z] Triggering deep fetch for set Winners Round 3 (98957711)
+[2026-02-05T01:36:43.677Z] Triggering deep fetch for set Losers Round 2 (98957825)
+[2026-02-05T01:36:44.209Z] Triggering deep fetch for set Winners Round 3 (98957712)
+[2026-02-05T01:36:44.796Z] Triggering deep fetch for set Losers Round 2 (98957826)
+[2026-02-05T01:36:45.622Z] Triggering deep fetch for set Winners Round 3 (98957713)
+[2026-02-05T01:36:46.194Z] Triggering deep fetch for set Losers Round 1 (98957810)
+[2026-02-05T01:36:46.880Z] Triggering deep fetch for set Winners Round 3 (98957716)
+[2026-02-05T01:36:47.538Z] Triggering deep fetch for set Losers Round 1 (98957820)
+[2026-02-05T01:36:48.308Z] Triggering deep fetch for set Losers Round 1 (98957806)
+[2026-02-05T01:36:49.217Z] Triggering deep fetch for set Losers Round 2 (98957827)
+[2026-02-05T01:36:53.450Z] Triggering deep fetch for set Losers Round 1 (98957818)
+[2026-02-05T01:36:53.975Z] Triggering deep fetch for set Losers Round 1 (98957814)
+[2026-02-05T01:36:54.751Z] Triggering deep fetch for set Winners Round 2 (98957693)
+[2026-02-05T01:36:55.436Z] Triggering deep fetch for set Losers Round 1 (98957812)
+[2026-02-05T01:36:56.530Z] Triggering deep fetch for set Winners Round 3 (98957710)
+[2026-02-05T01:36:57.250Z] Triggering deep fetch for set Winners Round 2 (98957705)
+[2026-02-05T01:36:57.799Z] Triggering deep fetch for set Winners Round 2 (98957703)
+[2026-02-05T01:36:58.390Z] Triggering deep fetch for set Winners Round 2 (98957699)
+[2026-02-05T01:36:59.052Z] Triggering deep fetch for set Winners Round 2 (98957707)
+[2026-02-05T01:36:59.724Z] Triggering deep fetch for set Winners Round 2 (98957701)
+[2026-02-05T01:37:00.314Z] Triggering deep fetch for set Winners Round 2 (98957706)
+[2026-02-05T01:37:04.819Z] Triggering deep fetch for set Winners Round 2 (98957708)
+[2026-02-05T01:37:05.231Z] Triggering deep fetch for set Winners Round 2 (98957704)
+[2026-02-05T01:37:06.026Z] Triggering deep fetch for set Winners Round 2 (98957702)
+[2026-02-05T01:37:06.404Z] Triggering deep fetch for set Winners Round 2 (98957700)
+[2026-02-05T01:37:07.202Z] Triggering deep fetch for set Losers Round 1 (98957816)
+[2026-02-05T01:37:07.846Z] Triggering deep fetch for set Winners Round 2 (98957694)
+[2026-02-05T01:37:08.339Z] Triggering deep fetch for set Winners Round 2 (98957697)
+[2026-02-05T01:37:08.892Z] Triggering deep fetch for set Winners Round 2 (98957696)
+[2026-02-05T01:37:09.555Z] Triggering deep fetch for set Winners Round 2 (98957695)
+[2026-02-05T01:37:14.258Z] Triggering deep fetch for set Winners Round 1 (98957686)
+[2026-02-05T01:37:14.897Z] Triggering deep fetch for set Winners Round 1 (98957662)
+[2026-02-05T01:37:15.408Z] Triggering deep fetch for set Winners Round 1 (98957682)
+[2026-02-05T01:37:15.918Z] Checking event: Qualifier 2 (ID: 1512451, State: CREATED)
+[2026-02-05T01:37:16.155Z] Found 0 sets for event Qualifier 2. Scanning for updates...
+[2026-02-05T01:37:16.157Z] Checking event: Qualifier 3 (ID: 1512452, State: CREATED)
+[2026-02-05T01:37:16.482Z] Found 0 sets for event Qualifier 3. Scanning for updates...
+[2026-02-05T01:37:16.484Z] Checking event: LAN (ID: 1512453, State: CREATED)
+[2026-02-05T01:37:16.692Z] Found 0 sets for event LAN. Scanning for updates...
+[2026-02-05T01:37:16.694Z] Live loop cycle complete.

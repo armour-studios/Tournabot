@@ -117,7 +117,7 @@ module.exports = {
       const embed = new EmbedBuilder()
         .setTitle(tournament.name)
         .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
-        .setColor('#FF3636') // Start.gg Red
+        .setColor('#FF3399') // Start.gg Red
         .setDescription(`${announceText}`)
         .addFields(
           { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },
@@ -125,7 +125,7 @@ module.exports = {
           { name: '🏆 Events', value: eventsInfo }
         )
         .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-        .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
+        .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
         .setTimestamp();
 
       if (streams) embed.addFields({ name: '📺 Streams', value: streams });

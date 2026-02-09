@@ -6,6 +6,7 @@ const announcemessageModel = require('../database/models/announcemessage');
 const pingroleModel = require('../database/models/pingrole');
 const timezoneModel = require('../database/models/timezone');
 const languageModel = require('../database/models/language');
+const guildSettingsModel = require('../database/models/guild_settings');
 
 module.exports = {
   name: 'set',
@@ -167,6 +168,22 @@ module.exports = {
         } catch (err) {
           console.error(err);
           await interaction.reply('Error updating language.');
+        }
+        break;
+
+      case 'promotionchannel':
+        const promoChannel = interaction.options.getChannel('channel');
+        if (!promoChannel) return interaction.reply('Please specify a channel.');
+        try {
+          await guildSettingsModel.findOneAndUpdate(
+            { guildId: guildID },
+            { $set: { "scrimSettings.autoChannel": promoChannel.id }, $addToSet: { promotionChannels: promoChannel.id } },
+            { upsert: true }
+          );
+          await interaction.reply(`Promotion channel set to ${promoChannel} :white_check_mark: All shared events will be broadcasted here.`);
+        } catch (err) {
+          console.error(err);
+          await interaction.reply('Error setting promotion channel.');
         }
         break;
 

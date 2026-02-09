@@ -1,6 +1,6 @@
 // Dependencies
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ComponentType } = require('discord.js');
-const { generateHelpSelection, generateAccountsEmbed, generateReminderEmbed, generateResultsEmbed, generateDQPingingEmbed, generateAnnounceEmbed, generateLocalizationEmbed, generateMatchmakingEmbed, generateSearchEmbed, generatePrefixEmbed, generateInfoEmbed } = require('./help_embeds/help_embeds.js');
+const { generateHelpSelection, generateAccountsEmbed, generateReminderEmbed, generateResultsEmbed, generateDQPingingEmbed, generateAnnounceEmbed, generateLocalizationEmbed, generateMatchmakingEmbed, generateSearchEmbed, generatePrefixEmbed, generateInfoEmbed, generateScrimEmbed, generateBroadcastEmbed, generateLeagueHelpEmbed } = require('./help_embeds/help_embeds.js');
 const { sendMessage } = require('../functions.js');
 
 module.exports = {
@@ -17,16 +17,16 @@ module.exports = {
       .setCustomId('help_category')
       .setPlaceholder('Select a category to view')
       .addOptions(
-        new StringSelectMenuOptionBuilder().setLabel('Accounts').setValue('accounts').setDescription('Linking and status commands').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Tournament Reminders').setValue('reminders').setDescription('Automatic reminders setup').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Tournament Results').setValue('results').setDescription('Viewing user results').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('DQ Pinging').setValue('dq').setDescription('Automatic match calling setup').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Tournament Announcing').setValue('announce').setDescription('Announcing tournaments').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Localization').setValue('localization').setDescription('Timezones and languages').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Matchmaking').setValue('mm').setDescription('Role-based matchmaking').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Tournament Searching').setValue('search').setDescription('Finding tournaments').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('Custom Prefix').setValue('prefix').setDescription('Legacy command prefix').setEmoji('🔶'),
-        new StringSelectMenuOptionBuilder().setLabel('More Info').setValue('info').setDescription('Support and contact info').setEmoji('🔶'),
+        new StringSelectMenuOptionBuilder().setLabel('Accounts').setValue('accounts').setDescription('Linking and status commands').setEmoji('👤'),
+        new StringSelectMenuOptionBuilder().setLabel('Teams & Scrims').setValue('scrim').setDescription('Team management and matchmaking').setEmoji('🎮'),
+        new StringSelectMenuOptionBuilder().setLabel('Global Broadcasts').setValue('broadcast').setDescription('Cross-server announcements').setEmoji('🌐'),
+        new StringSelectMenuOptionBuilder().setLabel('Tournament Reminders').setValue('reminders').setDescription('Automatic reminders setup').setEmoji('⏰'),
+        new StringSelectMenuOptionBuilder().setLabel('DQ Pinging').setValue('dq').setDescription('Automatic match calling setup').setEmoji('📢'),
+        new StringSelectMenuOptionBuilder().setLabel('Tournament Announcing').setValue('announce').setDescription('Announcing tournaments').setEmoji('📣'),
+        new StringSelectMenuOptionBuilder().setLabel('Leagues').setValue('league').setDescription('League and tournament tracking').setEmoji('🏆'),
+        new StringSelectMenuOptionBuilder().setLabel('Localization').setValue('localization').setDescription('Timezones and languages').setEmoji('🌍'),
+        new StringSelectMenuOptionBuilder().setLabel('Tournament Searching').setValue('search').setDescription('Finding tournaments').setEmoji('🔍'),
+        new StringSelectMenuOptionBuilder().setLabel('More Info').setValue('info').setDescription('Support and contact info').setEmoji('ℹ️'),
       );
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
@@ -54,14 +54,14 @@ module.exports = {
 
       switch (value) {
         case 'accounts': embed = generateAccountsEmbed(0); break;
+        case 'scrim': embed = generateScrimEmbed(0); break;
+        case 'broadcast': embed = generateBroadcastEmbed(0); break;
         case 'reminders': embed = generateReminderEmbed(0); break;
-        case 'results': embed = generateResultsEmbed(0); break;
         case 'dq': embed = generateDQPingingEmbed(0); break;
         case 'announce': embed = generateAnnounceEmbed(0); break;
+        case 'league': embed = generateLeagueHelpEmbed(0); break;
         case 'localization': embed = generateLocalizationEmbed(0); break;
-        case 'mm': embed = generateMatchmakingEmbed(0); break;
         case 'search': embed = generateSearchEmbed(0); break;
-        case 'prefix': embed = generatePrefixEmbed(0); break;
         case 'info': embed = generateInfoEmbed(0); break;
         default: embed = generateHelpSelection(0);
       }

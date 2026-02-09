@@ -22,6 +22,10 @@ module.exports = {
     const focusedValue = interaction.options.getFocused().toLowerCase();
     const games = [
       { name: 'Super Smash Bros. Ultimate', value: 'ultimate' },
+      { name: 'Super Smash Bros. Melee', value: 'melee' },
+      { name: 'Tekken 8', value: 'tekken8' },
+      { name: 'Street Fighter 6', value: 'sf6' },
+      { name: 'Rocket League', value: 'rl' },
       { name: 'Valorant', value: 'valorant' }
     ];
 
@@ -43,11 +47,23 @@ module.exports = {
     if (lowerInput.includes('ultimate') || lowerInput.includes('smash bros')) {
       videogameId = 1386;
       gameDisplayName = 'Super Smash Bros. Ultimate';
+    } else if (lowerInput.includes('melee')) {
+      videogameId = 1;
+      gameDisplayName = 'Super Smash Bros. Melee';
+    } else if (lowerInput.includes('tekken') || lowerInput.includes('t8')) {
+      videogameId = 49783;
+      gameDisplayName = 'Tekken 8';
+    } else if (lowerInput.includes('sf6') || lowerInput.includes('street fighter')) {
+      videogameId = 43868;
+      gameDisplayName = 'Street Fighter 6';
+    } else if (lowerInput.includes('rocket league') || lowerInput.includes('rl')) {
+      videogameId = 14;
+      gameDisplayName = 'Rocket League';
     } else if (lowerInput.includes('valorant')) {
       videogameId = 34223;
       gameDisplayName = 'Valorant';
     } else {
-      return interaction.reply(`I currently only support searching for **Super Smash Bros. Ultimate** or **Valorant**.`);
+      return interaction.reply(`I currently support: Ultimate, Melee, Tekken 8, SF6, Rocket League, Valorant.`);
     }
 
     await (interaction.deferReply ? interaction.deferReply() : Promise.resolve());

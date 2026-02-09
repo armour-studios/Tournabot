@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
+const { footerIcon } = require('../functions');
 
 // MongoDB Models
 const accountModel = require('../database/models/account');
@@ -34,7 +35,7 @@ module.exports = {
         .setColor(newStatus ? '#43b581' : '#f04747')
         .setTitle('Tournament Reminders')
         .setDescription(`Your tournament reminders have been toggled **${newStatus ? 'ON' : 'OFF'}**!`)
-        .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
+        .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
 
       await interaction.reply({ embeds: [embed] });
 

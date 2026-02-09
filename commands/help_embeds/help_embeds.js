@@ -1,42 +1,37 @@
 const { EmbedBuilder } = require('discord.js');
+const { footerIcon } = require('../../functions');
 
 const generateHelpSelection = index => {
   const descriptions = [`
-:small_orange_diamond: **Accounts**
+➡ **Accounts**
+Armour Studios handles account linking between start.gg and Discord.
 
-ArmourBot handles account linking between start.gg and Discord. Several commands are account-based.
+➡ **Teams & Scrims**
+Create a team, join scrims, and climb the global leaderboards.
 
-:small_orange_diamond: **Tournament Reminders**
+➡ **Global Broadcasts**
+Share your tournament updates across the Armour Studios network.
 
-Automatic reminders for your tournaments an hour before they begin. Requires linked accounts.
+➡ **Tournament Reminders**
+Automatic reminders for your tournaments an hour before they begin.
 
-:small_orange_diamond: **User Tournament Results**
-
-Details and sets from a user's three latest tournaments. Requires linked accounts.
-
-:small_orange_diamond: **Automatic Match Calling (DQ Pinging)**
-
+➡ **Match Calling (DQ Pinging)**
 Pings users in a specified channel when their set is called.
-
-:small_orange_diamond: **Tournament Announcing**
-
-Announces a given tournament with registration/event times and additional info.
 `, `
-:small_orange_diamond: **Localization**
+➡ **Tournament Announcing**
+Announces tournaments with registration/event times and info.
 
-Access complete localization through customizable timezones and languages.
+➡ **Leagues**
+Link entire Start.gg leagues or standalone tournaments for tracking.
 
-:small_orange_diamond: **Tournament Searching**
+➡ **Localization**
+Access complete localization through timezones and languages.
 
+➡ **Tournament Searching**
 Search for start.gg tournaments by game directly in your server.
 
-:small_orange_diamond: **Custom Prefix**
-
-Assign a custom prefix for ArmourBot legacy commands.
-
-:small_orange_diamond: **More Info**
-
-Support server, developer contact, and open-source information.
+➡ **More Info**
+Support server, developer contact, and open-source info.
 `];
   const helpSelectionEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
@@ -51,7 +46,7 @@ const generateAccountsEmbed = index => {
   const descriptions = [`
 > \`/account link <smash.gg profile URL>\`
 
-Links your smash.gg account and Discord account together, allowing ArmourBot to do tasks between Discord and smash.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
+Links your smash.gg account and Discord account together, allowing Armour Studios to do tasks between Discord and smash.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
 
 Please read [this](https://help.smash.gg/en/articles/4100961-user-profiles) if you do not know how/where to find your profile.
 `, `
@@ -85,9 +80,9 @@ const generateReminderEmbed = index => {
 
 Toggles your tournament reminders. As long as your accounts are linked prior to toggling on, you will always be automatically messaged an hour before any tournament you sign-up for. You can go to the next page to see what the reminders look like.
 
-*PLEASE NOTE: By toggling on tournament reminders, you consent to ArmourBot direct messaging you on Discord automatically.*
+*PLEASE NOTE: By toggling on tournament reminders, you consent to Armour Studios direct messaging you on Discord automatically.*
 `, `
-Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with ArmourBot, it cannot message you.
+Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with Armour Studios, it cannot message you.
 `];
   const examples = ['https://i.imgur.com/XNFHbeJ.png', 'https://i.imgur.com/noJpDgz.png'];
 
@@ -124,13 +119,13 @@ const generateDQPingingEmbed = index => {
   const descriptions = [`
 > \`/set dqpingchannel <#channel>\`
 
-Before beginning DQ pinging, you need to set the channel that ArmourBot will ping users in. This allows you to run \`/dq ping\` in a separate channel.
+Before beginning DQ pinging, you need to set the channel that Armour Studios will ping users in. This allows you to run \`/dq ping\` in a separate channel.
 `, `
 > \`/dq ping <tournament URL/start.gg short URL> <event_number (optional)> <event_name (optional)>\`
 
 Pings users in the DQ pinging channel a minute after their set is called (a minute after DQ timer has started). Specifying the event name or number as the second argument will ping only for that event, otherwise pinging will happen across all events (check example on the right to see how events are numbered). Pinging will automatically stop after six hours or when the tournament has ended.
 
-If your Discord account is not public on your start.gg profile and your accounts have not been linked through ArmourBot, your start.gg username will be shown in bold instead.
+If your Discord account is not public on your start.gg profile and your accounts have not been linked through Armour Studios, your start.gg username will be shown in bold instead.
 `, `
 > \`/dq stop\`
 
@@ -156,7 +151,7 @@ const generateAnnounceEmbed = index => {
   const descriptions = [`
 > \`/set announcechannel <#channel>\`
 
-Before announcing a tournament, you need to set the channel that ArmourBot will announce in. This allows you to run \`/announce\` in a separate channel.
+Before announcing a tournament, you need to set the channel that Armour Studios will announce in. This allows you to run \`/announce\` in a separate channel.
 `, `
 > \`/set announcemessage <message (optional)>\`
 
@@ -173,7 +168,7 @@ Announcements are formatted as such:
 <check-in time (if enabled)>
 
 <streams>\`\`\`
-Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by ArmourBot.
+Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by Armour Studios.
 `, `
 > \`/set pingrole <@role/role name (optional)>\`
 
@@ -204,13 +199,13 @@ const generateLocalizationEmbed = index => {
   const descriptions = [`
 > \`/set timezone <city (optional)>\`
 
-Sets the timezone that ArmourBot uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
+Sets the timezone that Armour Studios uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
 
 Currently supported cities: \`America/Los_Angeles\`, \`America/Phoenix\`, \`America/Denver\`, \`America/Regina\`, \`America/Chicago\`, \`America/New_York\`, \`Pacific/Honolulu\`
 `, `
 > \`/set language <code (optional)>\`
 
-Sets the language that ArmourBot uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
+Sets the language that Armour Studios uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
 `];
   const examples = ['https://i.imgur.com/OOFBH0O.png', 'https://i.imgur.com/TEpnXU0.png'];
 
@@ -252,7 +247,7 @@ const generatePrefixEmbed = index => {
 
 > \`t!set prefix <prefix (optional)>\`
 
-Assign a custom prefix for ArmourBot legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
+Assign a custom prefix for Armour Studios legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
 
 \`t!set prefix <prefix (optional)>\` and \`t!help\` can always be run with the original prefix, \`t!\`.
 `)
@@ -264,21 +259,83 @@ Assign a custom prefix for ArmourBot legacy commands. Please note that prefixes 
 const generateInfoEmbed = index => {
   const infoEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
-    .setDescription(`ArmourBot is your all-in-one tournament management solution powered by Start.gg. Built by Armour Studios for the competitive gaming community.`)
-    .setFooter({ text: `ArmourBot`, iconURL: footerIcon });
+    .setDescription(`Armour Studios is your all-in-one tournament management solution powered by Start.gg. Built by Armour Studios for the competitive gaming community.`)
+    .setFooter({ text: `Armour Studios`, iconURL: footerIcon });
 
   return infoEmbed;
 }
 
+const generateScrimEmbed = index => {
+  const label = '➡ **Teams & Scrims**';
+  const descriptions = [`
+> \`/scrim team create <name>\`
+Create a new scrim team for your server or organization.
+
+> \`/scrim team invite <@user>\`
+Invite a player to your team.
+
+> \`/scrim team join <name>\`
+Join a team you were invited to.
+`, `
+> \`/scrim queue join\`
+Queue your team for a scrimmage against other teams.
+
+> \`/scrim queue status\`
+Check who is currently in the scrimmage queue.
+
+> \`/scrim leaderboard\`
+View the global team ELO leaderboard.
+`];
+  const scrimEmbed = new EmbedBuilder()
+    .setColor('#00A3FF')
+    .setDescription(`${label}\n${descriptions[index]}`)
+    .setFooter({ text: `Page ${index + 1} of 2`, iconURL: footerIcon });
+  return scrimEmbed;
+}
+
+const generateBroadcastEmbed = index => {
+  const label = '➡ **Global Broadcasts**';
+  const descriptions = [`
+> \`/broadcast toggle\`
+Enable or disable cross-server announcements for your tournaments.
+
+When enabled, your tournament starts and major updates will be broadcasted to other servers in the Armour Studios network.
+`];
+  const broadcastEmbed = new EmbedBuilder()
+    .setColor('#00A3FF')
+    .setDescription(`${label}\n${descriptions[index]}`)
+    .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
+  return broadcastEmbed;
+}
+
+const generateLeagueHelpEmbed = index => {
+  const label = '➡ **Leagues & Tracking**';
+  const descriptions = [`
+> \`/league link <URL>\`
+Link a Start.gg league or standalone tournament for automated tracking and scheduled reminders.
+
+> \`/league unlink\`
+Stop tracking the currently linked league or tournament.
+`];
+  const leagueEmbed = new EmbedBuilder()
+    .setColor('#00A3FF')
+    .setDescription(`${label}\n${descriptions[index]}`)
+    .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
+  return leagueEmbed;
+}
+
 module.exports = {
-  generateHelpSelection: generateHelpSelection,
-  generateAccountsEmbed: generateAccountsEmbed,
-  generateReminderEmbed: generateReminderEmbed,
-  generateResultsEmbed: generateResultsEmbed,
-  generateDQPingingEmbed: generateDQPingingEmbed,
-  generateAnnounceEmbed: generateAnnounceEmbed,
-  generateLocalizationEmbed: generateLocalizationEmbed,
-  generateSearchEmbed: generateSearchEmbed,
-  generatePrefixEmbed: generatePrefixEmbed,
-  generateInfoEmbed: generateInfoEmbed
+  generateHelpSelection,
+  generateAccountsEmbed,
+  generateReminderEmbed,
+  generateResultsEmbed,
+  generateDQPingingEmbed,
+  generateAnnounceEmbed,
+  generateLocalizationEmbed,
+  generateSearchEmbed,
+  generatePrefixEmbed,
+  generateInfoEmbed,
+  generateScrimEmbed,
+  generateBroadcastEmbed,
+  generateLeagueHelpEmbed
 };

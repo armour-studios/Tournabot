@@ -4,7 +4,7 @@ const { SMASHGGTOKEN } = process.env;
 const fetch = require('node-fetch');
 const urllib = require('urllib');
 const replaceall = require('replaceall');
-const { sendMessage, queryAPI } = require('../functions');
+const { sendMessage, queryAPI, extractSlug, fetchEntity } = require('../functions');
 
 // MongoDB Models
 const accountModel = require('../database/models/account');
@@ -112,16 +112,16 @@ module.exports = {
           // Tournament/Event status checking
           await interaction.deferReply();
 
-          let slug = url.replace('https://smash.gg/', '').replace('https://www.start.gg/', '').replace('https://start.gg/', '').replace('smash.gg/', '').replace('start.gg/', '').split('?')[0];
+          const slug = extractSlug(url);
+          if (!slug) return interaction.editReply('Invalid event URL.');
 
-          // We need to check if it's a tournament or event slug
-          // For simplicity, we'll try to fetch entrants from the event
-          // If the link is a tournament link, we might need a different query or user needs to provide event link
+          const entity = await fetchEntity(slug);
+          if (!entity) return interaction.editReply('Could not find tournament or league.');
+
           const entrantsQuery = `
-          query EventEntrants($slug: String, $page: Int) {
-            event(slug: $slug) {
+          query Entrants($slug: String!, $page: Int!) {
+            ${entity.type}(slug: $slug) {
               name
-              tournament { name }
               entrants(query: { page: $page, perPage: 50 }) {
                 pageInfo { totalPages }
                 nodes {
@@ -136,18 +136,19 @@ module.exports = {
 
           try {
             const firstPage = await queryAPI(entrantsQuery, { slug, page: 1 });
-            if (!firstPage || !firstPage.data || !firstPage.data.event) {
-              return interaction.editReply('Could not find event. Make sure you provide a valid event URL (e.g., `https://start.gg/tournament/slug/event/slug`).');
+            if (!firstPage || !firstPage.data || !firstPage.data[entity.type]) {
+              return interaction.editReply('Could not fetch entrants for this entity.');
             }
 
-            const event = firstPage.data.event;
-            const totalPages = event.entrants.pageInfo.totalPages;
+            const dataEntity = firstPage.data[entity.type];
+            const totalPages = dataEntity.entrants.pageInfo.totalPages;
+            const entityName = dataEntity.name;
             let allEntrantSlugs = [];
 
             // Fetch all entrants (limit to 5 pages for safety/performance)
             for (let p = 1; p <= Math.min(totalPages, 5); p++) {
               const pageData = p === 1 ? firstPage : await queryAPI(entrantsQuery, { slug, page: p });
-              const nodes = pageData.data.event.entrants.nodes;
+              const nodes = pageData.data[entity.type].entrants.nodes;
               nodes.forEach(node => {
                 node.participants.forEach(part => {
                   if (part.user && part.user.slug) {
@@ -157,8 +158,7 @@ module.exports = {
               });
             }
 
-            // Find matching users in database who are also in this server
-            // This is a bit expensive if done for every user, so we filter by current guild members' linked accounts
+            // Find matching users in database
             const linkedAccounts = await accountModel.find({ profileslug: { $in: allEntrantSlugs } });
 
             // Filter to only include users in the current guild
@@ -182,7 +182,7 @@ module.exports = {
             }
 
             if (matchingMembers.length === 0) {
-              return interaction.editReply(`No members from this server were found in **${event.tournament.name} - ${event.name}**.`);
+              return interaction.editReply(`No members from this server were found in **${entityName}**.`);
             }
 
             const generateEmbed = (pageIndex) => {
@@ -192,7 +192,7 @@ module.exports = {
               const pageItems = matchingMembers.slice(start, end);
 
               const embed = new EmbedBuilder()
-                .setTitle(`Members in ${event.name}`)
+                .setTitle(`Members in ${entityName}`)
                 .setDescription(`Found ${matchingMembers.length} members from this server:`)
                 .setColor('#222326')
                 .setURL(url);

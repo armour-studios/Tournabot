@@ -23,50 +23,54 @@ async function checkLeagues(client) {
     // Filter distinctive slugs to query API once per league
     const uniqueSlugs = [...new Set(leagues.map(l => l.slug))];
 
-    for (const slug of uniqueSlugs) {
+    for (const record of uniqueSlugs) {
         try {
-            // Fetch tournaments starting between now and 8 days from now
-            // This covers the max default interval (7 days) + buffer
+            const leagueDocs = leagues.filter(l => l.slug === record);
+            const type = leagueDocs[0].type; // Unified type check
+
             const rangeStart = Math.floor(Date.now() / 1000);
             const rangeEnd = rangeStart + (8 * 24 * 60 * 60);
 
-            const query = `query LeagueUpcoming($slug: String, $after: Timestamp, $before: Timestamp) {
+            const leagueQuery = `query LeagueUpcoming($slug: String, $after: Timestamp, $before: Timestamp) {
                 league(slug: $slug) {
                     name
                     tournaments(query: { filter: { afterDate: $after, beforeDate: $before }, perPage: 15, sort: "startAt" }) {
                         nodes {
-                            id
-                            name
-                            slug
-                            startAt
-                            registrationClosesAt
-                            url
-                            images { url type }
-                            events {
-                                name
-                                startAt
-                                checkInEnabled
-                                checkInBuffer
-                                checkInDuration
-                            }
-                            streams {
-                                streamSource
-                                streamName
-                            }
+                            id name slug startAt registrationClosesAt url images { url type }
+                            events { name startAt checkInEnabled checkInBuffer checkInDuration }
+                            streams { streamSource streamName }
                         }
                     }
                 }
             }`;
 
-            const data = await queryAPI(query, { slug, after: rangeStart, before: rangeEnd });
+            const tournamentQuery = `query TournamentUpcoming($slug: String) {
+                tournament(slug: $slug) {
+                    id name slug startAt registrationClosesAt url images { url type }
+                    events { name startAt checkInEnabled checkInBuffer checkInDuration }
+                    streams { streamSource streamName }
+                }
+            }`;
 
-            if (!data || !data.data || !data.data.league || !data.data.league.tournaments) continue;
+            const data = await queryAPI(type === 'league' ? leagueQuery : tournamentQuery, { slug: record, after: rangeStart, before: rangeEnd });
 
-            const tournaments = data.data.league.tournaments.nodes;
-            const leagueName = data.data.league.name;
+            if (!data || !data.data) continue;
+
+            let tournaments = [];
+            let leagueName = '';
+
+            if (type === 'league' && data.data.league) {
+                tournaments = data.data.league.tournaments.nodes;
+                leagueName = data.data.league.name;
+            } else if (type === 'tournament' && data.data.tournament) {
+                tournaments = [data.data.tournament];
+                leagueName = data.data.tournament.name;
+            } else {
+                continue;
+            }
 
             // Process each guild linked to this league
-            const relevantLeagues = leagues.filter(l => l.slug === slug);
+            const relevantLeagues = leagues.filter(l => l.slug === record);
 
             for (const leagueDoc of relevantLeagues) {
                 // Initialize map if missing (for legacy docs)
@@ -132,7 +136,7 @@ async function checkLeagues(client) {
             }
 
         } catch (err) {
-            console.error(`Error checking league ${slug}:`, err);
+            console.error(`Error checking league ${record}:`, err);
         }
     }
 }
@@ -179,7 +183,7 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
         const embed = new EmbedBuilder()
             .setTitle(tournament.name)
             .setURL(`https://start.gg/${tournament.url || 'tournament/' + tournament.slug}`)
-            .setColor('#FF3636')
+            .setColor('#FF3399')
             .setDescription(`${announceText}`)
             .addFields(
                 { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },
@@ -187,7 +191,7 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
                 { name: '🏆 Events', value: eventsInfo }
             )
             .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-            .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
+            .setFooter({ text: `Powered by Armour Studios | ${tournament.name}`, iconURL: footerIcon })
             .setTimestamp();
 
         if (streams) embed.addFields({ name: '📺 Streams', value: streams });

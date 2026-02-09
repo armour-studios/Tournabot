@@ -6,7 +6,8 @@ const channelSchema = new mongoose.Schema({
     dqpingchannelid: String,
     matchfeedchannel: String,
     standingschannel: String,
-    seedchannel: String
+    seedchannel: String,
+    upsetchannel: String
 });
 
 const channelModel = module.exports = mongoose.model('channels', channelSchema);

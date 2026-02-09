@@ -178,7 +178,7 @@ module.exports = {
             { name: '📊 Event Placements', value: t.stats.map(e => `**${e.name}**: ${e.placement}/${e.total}`).join('\n') || 'N/A', inline: false },
             { name: '⚔️ Recent Sets', value: t.sets.join('\n') || 'N/A', inline: false }
           )
-          .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
+          .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
           .setTimestamp();
         return embed;
       };

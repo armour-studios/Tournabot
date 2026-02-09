@@ -1,6 +1,33 @@
 // Dependencies
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder, ActivityType } = require('discord.js');
 require('dotenv').config();
+const fs = require('fs');
+
+// Global Logger
+const logFile = fs.createWriteStream('bot_output.log', { flags: 'a' });
+const logStdout = process.stdout;
+
+console.log = function () {
+  logFile.write(`[STDOUT ${new Date().toISOString()}] ` + Array.from(arguments).join(' ') + '\n');
+  logStdout.write(Array.from(arguments).join(' ') + '\n');
+};
+console.error = function () {
+  const args = Array.from(arguments).map(arg => {
+    if (arg instanceof Error) return arg.stack;
+    return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg;
+  });
+  logFile.write(`[STDERR ${new Date().toISOString()}] ` + args.join(' ') + '\n');
+  logStdout.write(args.join(' ') + '\n');
+};
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
 const { PREFIX, DISCORDTOKEN, DISCORD_TOKEN, ALTDISCORDTOKEN } = process.env;
 const token = DISCORDTOKEN || DISCORD_TOKEN;
 
@@ -15,16 +42,16 @@ const { convertEpochToClock, sendMessage, queryAPI } = require('./functions');
 const remindLoop = require('./remind_loop');
 const leagueLoop = require('./league_loop');
 const liveLoop = require('./live_loop');
-const fs = require('fs');
+
 const http = require('http');
 
 // Create a dummy server for Render's health check
 const port = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('ArmourBot is online!\n');
+  res.end('Armour Studios is online!\n');
 }).listen(port, () => {
-  console.log(`Health check server listening on port ${port} `);
+  console.log(`Health check server listening on port ${port}`);
 });
 
 const client = new Client({
@@ -55,7 +82,6 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-// MongoDB Models
 // On interaction received (Slash Commands)
 client.on('interactionCreate', async interaction => {
   if (interaction.isButton() && interaction.customId.startsWith('requestmod_')) {
@@ -65,14 +91,23 @@ client.on('interactionCreate', async interaction => {
 
     try {
       // Query set info
+      // Query set info with Discord authorizations
       const query = `query SetQuery($id: ID!) {
         set(id: $id) {
           fullRoundText
-          event { name tournament { name url slug } }
-          slots { entrant { name participants { user { id } } } }
+          event { id name tournament { name url slug } }
+          slots {
+            entrant {
+              name
+              participants {
+                user {
+                  authorizations(types: DISCORD) { externalId }
+                }
+              }
+            }
+          }
         }
       }`;
-      const { queryAPI } = require('./functions');
       const data = await queryAPI(query, { id: setId });
 
       if (!data || !data.data || !data.data.set) {
@@ -82,14 +117,25 @@ client.on('interactionCreate', async interaction => {
       const set = data.data.set;
       const tournamentUrl = `https://start.gg/${set.event.tournament.url || 'tournament/' + set.event.tournament.slug}`;
 
+      // Helper to get Discord tag
+      const getTag = (slot) => {
+        const entrant = slot.entrant;
+        if (!entrant) return 'TBD';
+        const user = entrant.participants?.[0]?.user;
+        const discordId = user?.authorizations?.[0]?.externalId;
+        return discordId ? `<@${discordId}> (${entrant.name})` : `**${entrant.name}**`;
+      };
+
+      const p1Tag = getTag(set.slots[0]);
+      const p2Tag = getTag(set.slots[1]);
+
       const alertEmbed = new EmbedBuilder()
         .setTitle('🚨 Moderator Requested')
-        .setColor('#FF0000') // Bright Red
-        .setDescription(`**Request by:** ${interaction.user}\n**Match:** ${set.slots[0].entrant.name} vs ${set.slots[1].entrant.name}\n**Round:** ${set.fullRoundText}\n**Event:** ${set.event.name}`)
+        .setColor('#FF0000')
+        .setDescription(`**Request by:** ${interaction.user}\n**Match:** ${p1Tag} vs ${p2Tag}\n**Round:** ${set.fullRoundText}\n**Event:** ${set.event.name}`)
         .addFields({ name: 'Links', value: `[View Match](${tournamentUrl}) | [Bracket](${tournamentUrl}/event/${set.event.id})` })
         .setTimestamp();
 
-      // Find Mod Channel (Look for #mod-requests or fallback to current)
       const modChannel = interaction.guild.channels.cache.find(c => c.name.includes('mod-request') || c.name.includes('moderator')) || interaction.channel;
 
       await modChannel.send({ content: '@here', embeds: [alertEmbed] });
@@ -129,18 +175,25 @@ client.on('interactionCreate', async interaction => {
   if (!slashCommand) return;
 
   try {
-    // For legacy commands that expect a 'message' object, we might need a shim
-    // but for help/account we'll update them later.
-    // For now, let's just log it.
     console.log(`Executing interaction command: ${commandName}`);
     if (slashCommand.executeSlash) {
+      console.log(`Calling executeSlash for ${commandName}`);
       await slashCommand.executeSlash(interaction, client);
     } else {
       await interaction.reply({ content: 'This command is not yet fully converted to a native Slash Command, but I am working on it!', ephemeral: true });
     }
   } catch (error) {
-    console.error(error);
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    console.error('Bot-level Interaction Error:', error);
+    const errorMessage = 'There was an error while executing this command!';
+    try {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ content: errorMessage + `\n\n**Technical Details:** ${error.message}` });
+      } else {
+        await interaction.reply({ content: errorMessage + `\n\n**Technical Details:** ${error.message}`, ephemeral: true });
+      }
+    } catch (innerError) {
+      console.error('Failed to send error message:', innerError);
+    }
   }
 });
 
@@ -151,19 +204,17 @@ const prefixModel = require('./database/models/prefix');
 
 // Initialize client
 client.login(token);
-//client.login(ALTDISCORDTOKEN); // Alternate token for testing client
 
 const mongoose = require('mongoose');
 
 // On Discord client ready
 client.once('ready', async () => {
-  console.log(`Ready at ${convertEpochToClock(Date.now() / 1000, 'America/Los_Angeles', true)} `);
+  console.log(`Ready at ${convertEpochToClock(Date.now() / 1000, 'America/Los_Angeles', true)}`);
 
   try {
     console.log('Waiting for MongoDB connection...');
-    await database; // Waits for the initial connection promise
+    await database;
 
-    // Additional check to ensure the connection is actually 'open'
     if (mongoose.connection.readyState !== 1) {
       console.log('MongoDB connection established but not yet open. Waiting for open event...');
       await new Promise((resolve, reject) => {
@@ -173,23 +224,21 @@ client.once('ready', async () => {
     }
 
     console.log('Connected to MongoDB and ready for queries.');
-    console.log(`Bot loaded with PREFIX: "${PREFIX}"(fallback to t!)`);
+    console.log(`Bot loaded with PREFIX: "${PREFIX}" (fallback to t!)`);
 
     client.user.setActivity('for /help', { type: ActivityType.Watching });
 
-    // Loop for tracking and setting tournament reminders
     remindLoop(client);
     leagueLoop(client);
     liveLoop(client);
   } catch (err) {
     console.error('CRITICAL: Failed to connect to MongoDB:', err);
-    // Log the readyState to help debug
     console.log('MongoDB ReadyState:', mongoose.connection.readyState);
     process.exit(1);
   }
 });
 
-// On bot being invited to a Discord server, send message
+// On bot being invited to a Discord server
 client.on('guildCreate', guild => {
   let defaultChannel = '';
   guild.channels.cache.forEach((channel) => {
@@ -201,7 +250,7 @@ client.on('guildCreate', guild => {
   });
   const joinEmbed = new EmbedBuilder()
     .setColor('#222326')
-    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. ArmourBot is your all-in-one tournament management solution!`);
+    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. Armour Studios is your all-in-one tournament management solution!`);
   defaultChannel.send({ embeds: [joinEmbed] }).catch(err => console.log(err));
   console.log('Added to: ' + guild.name);
 });

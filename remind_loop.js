@@ -2,7 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { Vibrant } = require('node-vibrant/node');
 const accurateInterval = require('accurate-interval');
 const setAccurateTimeout = require('set-accurate-timeout');
-const { convertEpoch, convertEpochToClock, queryAPI } = require('./functions');
+const { convertEpoch, convertEpochToClock, queryAPI, footerIcon } = require('./functions');
 
 // MongoDB Models
 const accountModel = require('./database/models/account');
@@ -120,7 +120,7 @@ async function remindLoop(client) {
         { name: 'Events', value: events || 'N/A', inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: 'ArmourBot', iconURL: footerIcon });
+      .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
 
     if (streams) embed.addFields({ name: 'Streams', value: streams });
 

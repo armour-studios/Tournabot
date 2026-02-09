@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = 
 const urllib = require('urllib');
 const replaceall = require('replaceall');
 const accurateInterval = require('accurate-interval');
-const { queryAPI, sendMessage, footerIcon } = require('../functions');
+const { queryAPI, sendMessage, footerIcon, extractSlug, fetchEntity } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -34,43 +34,11 @@ module.exports = {
 
             await interaction.deferReply();
 
-            try {
-                let urlSlug = '';
-                if (url.includes('smash.gg/') || url.includes('start.gg/')) {
-                    const cleanUrl = url.replace('https://', '').replace('http://', '');
+            const slug = extractSlug(url);
+            if (!slug) return interaction.editReply('Invalid tournament/league URL.');
 
-                    // Handle short URLs or direct tournament URLs
-                    if (cleanUrl.startsWith('smash.gg/') || cleanUrl.startsWith('start.gg/')) {
-                        // If it's a short URL, we might need to resolve it. 
-                        // Simplest is to check if it's /tournament/ first
-                        if (cleanUrl.includes('/tournament/')) {
-                            urlSlug = cleanUrl.split('/tournament/')[1].split('/')[0];
-                            await startDQPinging(urlSlug, eventNumber, eventName, interaction, client);
-                        } else {
-                            // Short URL resolution
-                            urllib.request('https://' + cleanUrl, async (err, data, res) => {
-                                if (err) {
-                                    console.error(err);
-                                    return interaction.editReply('Error resolving tournament URL.');
-                                }
-                                if (res.headers.location) {
-                                    const resolvedSlug = res.headers.location.split('/tournament/')[1].split('/')[0];
-                                    await startDQPinging(resolvedSlug, eventNumber, eventName, interaction, client);
-                                } else {
-                                    return interaction.editReply('Could not find tournament from the provided URL.');
-                                }
-                            });
-                        }
-                    } else {
-                        return interaction.editReply('Invalid tournament URL format.');
-                    }
-                } else {
-                    return interaction.editReply('Invalid tournament URL format.');
-                }
-            } catch (err) {
-                console.error(err);
-                await interaction.editReply('An error occurred while starting DQ pinging.');
-            }
+            await startDQPinging(slug, eventNumber, eventName, interaction, client);
+
         } else if (subcommand === 'stop') {
             const dqLoop = dqPingingMap.get(guildId);
             const dqReminderLoop = dqReminderMap.get(guildId);
@@ -101,36 +69,24 @@ async function startDQPinging(slug, eventNumber, eventName, interaction, client)
             return interaction.editReply('The configured DQ pinging channel no longer exists or I cannot see it.');
         }
 
-        const query = `query TournamentStartAndEnd($slug: String) {
-      tournament(slug: $slug) {
-        name
-        endAt
-        events {
-          startAt
-          name
-        } 
-      }
-    }`;
-
-        const data = await queryAPI(query, { slug });
-        if (!data || !data.data || !data.data.tournament) {
-            return interaction.editReply('Could not find tournament data for the provided URL.');
+        const entity = await fetchEntity(slug);
+        if (!entity) {
+            return interaction.editReply('Could not find tournament/league data for the provided URL.');
         }
 
-        const tournament = data.data.tournament;
-        const tournamentEnd = tournament.endAt * 1000;
+        const tournamentEnd = entity.endAt * 1000;
         const autoStop = Date.now() + 21600000; // 6 hours
 
         let indexEvent = eventNumber ? eventNumber - 1 : null;
         let filterByName = !!eventName;
-        let tournamentStarted = tournament.events.some(e => Date.now() >= e.startAt * 1000);
+        let tournamentStarted = entity.events.some(e => Date.now() >= e.startAt * 1000);
 
         if (!tournamentStarted) {
-            return interaction.editReply('DQ pinging cannot start yet - the tournament has not started.');
+            return interaction.editReply('DQ pinging cannot start yet - the event has not started.');
         }
 
         await interaction.editReply('Starting DQ pinging...');
-        console.log(`Starting DQ pinging in ${interaction.guild.name} for ${tournament.name}`);
+        console.log(`Starting DQ pinging in ${interaction.guild.name} for ${entity.name}`);
 
         // DQ Logic Loop
         let messagesSent = 20;
@@ -153,39 +109,42 @@ async function startDQPinging(slug, eventNumber, eventName, interaction, client)
                 return;
             }
 
-            const setsQuery = `query EventSets($slug: String) {
-        tournament(slug: $slug) {
-          events {
-            name
-            sets(sortType: RECENT, filters: {state: 6}) {
-              nodes {
-                id
-                fullRoundText
-                slots {
-                  entrant {
-                    name
-                    participants {
-                      gamerTag
-                      user {
-                        slug
-                        authorizations(types: [DISCORD]) {
-                          type
-                          externalId
+            const setsQuery = `query EventSets($slug: String!) {
+                ${entity.type}(slug: $slug) {
+                    events {
+                        name
+                        sets(sortType: RECENT, filters: {state: 6}) {
+                            nodes {
+                                id
+                                fullRoundText
+                                slots {
+                                    entrant {
+                                        name
+                                        participants {
+                                            gamerTag
+                                            user {
+                                                slug
+                                                authorizations(types: DISCORD) {
+                                                    type
+                                                    externalId
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                      }
                     }
-                  }
-                }
-              }
-            }
-          }
-        } 
-      }`;
+                } 
+            }`;
 
             const setsData = await queryAPI(setsQuery, { slug });
-            if (!setsData || !setsData.data || !setsData.data.tournament) return;
+            if (!setsData || !setsData.data || !setsData.data[entity.type]) {
+                if (setsData?.errors) console.error(`[DQ Loop] API Errors:`, JSON.stringify(setsData.errors));
+                return;
+            }
 
-            const activeEvents = setsData.data.tournament.events;
+            const activeEvents = setsData.data[entity.type].events;
 
             for (let i = 0; i < activeEvents.length; i++) {
                 const event = activeEvents[i];
@@ -251,9 +210,9 @@ async function pingUser(set, roundText, dqChannel) {
 
         const matchEmbed = new EmbedBuilder()
             .setTitle('⚔️ Match Called')
-            .setColor('#FF3636')
+            .setColor('#FF3399')
             .setDescription(`${entrantMentions[0]} vs ${entrantMentions[1]}\n${roundText}`)
-            .setFooter({ text: 'Powered by ArmourBot', iconURL: footerIcon })
+            .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
             .setTimestamp();
 
         const modButton = new ActionRowBuilder().addComponents(
