@@ -126,25 +126,12 @@ async function queryAPI(query, variables) {
 const guildSettingsModel = require('./database/models/guild_settings');
 
 const defaultBranding = {
-  name: 'Armour Studios',
-  icon: 'https://i.imgur.com/tDN2QeJ.png',
+  name: 'NE Network Bot',
+  icon: 'https://i.imgur.com/ntLntdz.png', // NE Network Logo
   color: '#FF3399'
 };
 
 async function getBranding(guildId) {
-  if (!guildId) return defaultBranding;
-  try {
-    const settings = await guildSettingsModel.findOne({ guildId });
-    if (settings) {
-      return {
-        name: settings.customName || defaultBranding.name,
-        icon: settings.customLogo || defaultBranding.icon,
-        color: settings.brandingColor || defaultBranding.color
-      };
-    }
-  } catch (err) {
-    console.error('Error fetching branding:', err);
-  }
   return defaultBranding;
 }
 
@@ -156,8 +143,8 @@ async function broadcastAlert(client, sourceGuildId, queueType, details) {
     .setColor(branding.color)
     .setTitle(`📢 ${queueType === 'scrim' ? 'Scrimmage' : 'Pro Queue'} Alert!`)
     .setAuthor({ name: branding.name, iconURL: branding.icon })
-    .setDescription(details)
-    .setFooter({ text: 'Armour Studios Cross-Server Network', iconURL: footerIcon })
+    .setDescription(`${details}\n\n[**Join the Scrim Discord**](https://discord.com/invite/G9uMk2N9bY)`)
+    .setFooter({ text: 'NE Network Cross-Server System', iconURL: footerIcon })
     .setTimestamp();
 
   try {
@@ -187,43 +174,51 @@ async function broadcastAlert(client, sourceGuildId, queueType, details) {
 
 function extractSlug(url) {
   if (!url) return null;
-  // Normalize URL
-  const cleanUrl = url.split('?')[0].split('#')[0];
-  const parts = cleanUrl.split('/').filter(Boolean);
 
-  // Check for event deep link first (most specific)
-  const eventIndex = parts.findIndex(p => p.toLowerCase() === 'event' || p.toLowerCase() === 'events');
-  const tournamentIndex = parts.findIndex(p => p.toLowerCase() === 'tournament');
+  // 1. Clean URL: remove protocol, www, query params, hash
+  let clean = url.replace(/^(?:https?:\/\/)?(?:www\.)?start\.gg\//i, '')
+    .replace(/^(?:https?:\/\/)?(?:www\.)?smash\.gg\//i, '')
+    .split('?')[0]
+    .split('#')[0];
 
-  // Case 1: tournament/xyz/event/abc
-  if (tournamentIndex !== -1 && eventIndex !== -1 && parts[eventIndex + 1]) {
-    return `tournament/${parts[tournamentIndex + 1]}/event/${parts[eventIndex + 1]}`;
+  // Remove trailing slash
+  if (clean.endsWith('/')) clean = clean.slice(0, -1);
+
+  // 2. Identify Type (Tournament vs League)
+  // Regex to capture type and slug: (tournament|league|hub)/([^/]+)
+  // Check for event component: (tournament|league|hub)/([^/]+)/event/([^/]+) or events/([^/]+)
+  const eventMatch = clean.match(/^(tournament|league|hub)\/([^/]+)\/(?:event|events)\/([^/]+)/i);
+  if (eventMatch) {
+    const type = eventMatch[1].toLowerCase();
+    const slug = eventMatch[2];
+    const eventSlug = eventMatch[3];
+    // Return full event path for deep links
+    return `${type}/${slug}/event/${eventSlug}`;
   }
 
-  // Case 2: tournament/xyz/events -> tournament/xyz
-  if (tournamentIndex !== -1 && eventIndex !== -1 && !parts[eventIndex + 1]) {
-    return `tournament/${parts[tournamentIndex + 1]}`;
+  const typeMatch = clean.match(/^(tournament|league|hub)\/([^/]+)/i);
+  if (typeMatch) {
+    const type = typeMatch[1].toLowerCase();
+    const slug = typeMatch[2];
+
+    if (type === 'hub') return `league/${slug}`; // Treat hubs as leagues
+    return `${type}/${slug}`;
   }
 
-  // Case 3: tournament/xyz
-  if (tournamentIndex !== -1 && parts[tournamentIndex + 1]) {
-    return `tournament/${parts[tournamentIndex + 1]}`;
-  }
+  // 3. Handle Short/Ambiguous Links (e.g. start.gg/genesis-8)
+  // If no type prefix, assume it's a slug directly.
+  // We return just the slug, and let fetchEntity try both tournament and league queries.
+  // However, `fetchEntity` expects "tournament/slug" or "league/slug" to be safer if we want to be strict,
+  // BUT the current fetchEntity logic logic tries based on hint or fallback.
+  // Let's look at the parts.
+  const parts = clean.split('/');
 
-  // Case 4: league/xyz
-  const leagueIndex = parts.findIndex(p => p.toLowerCase() === 'league');
-  if (leagueIndex !== -1 && parts[leagueIndex + 1]) {
-    return `league/${parts[leagueIndex + 1]}`;
-  }
+  // If it's just one part "genesis-8", return it as is -> let fetchEntity decide
+  if (parts.length === 1) return parts[0];
 
-  // Fallback: just return the slug if it looks like one, or the last part
-  // Avoid returning 'events' if it's the last part
-  let lastPart = parts[parts.length - 1];
-  if (lastPart.toLowerCase() === 'events') {
-    return parts[parts.length - 2];
-  }
-
-  return lastPart;
+  // If complex path but no known prefix, return the first part as a potential slug?
+  // e.g. "genesis-8/events/..." -> "genesis-8"
+  return parts[0];
 }
 
 async function fetchEntity(slug, typeHint = null) {

@@ -256,7 +256,7 @@ async function checkLiveEvents(client) {
                                 const streamUrl = isStreamed ? `https://twitch.tv/${set.stream.streamName}` : null;
 
                                 const embed = new EmbedBuilder()
-                                    .setFooter({ text: `Powered by Armour Studios | ${tournament.name}`, iconURL: footerIcon })
+                                    .setFooter({ text: `Powered by NE Network | ${tournament.name}`, iconURL: footerIcon })
                                     .setTimestamp();
 
                                 if (tImage) embed.setThumbnail(tImage);
@@ -377,32 +377,66 @@ async function checkLiveEvents(client) {
                         }
 
                         // STAGE 3: STANDINGS CHECK (Only if not already announced)
+                        // STAGE 3: STANDINGS CHECK (Persistent)
                         const isCompleted = event.state === 3 || event.state === 'COMPLETED';
-                        if (isCompleted && !announcedStandings.has(event.id)) {
-                            const standingsQuery = `query EventStandings($id: ID) {
-                                event(id: $id) {
-                                    id
-                                    standings(query: { page: 1, perPage: 8 }) { nodes { placement entrant { name participants { user { images { url } } } } } }
-                                }
-                            }`;
-                            const standingsRes = await queryAPI(standingsQuery, { id: event.id });
-                            const standings = standingsRes?.data?.event?.standings;
+                        const completionKey = `EVENT_COMPLETE_${event.id}`;
 
-                            if (standings?.nodes?.length > 0) {
-                                for (const leagueDoc of relevantLeagues) {
-                                    const channels = await channelModel.findOne({ guildid: leagueDoc.guildid });
-                                    if (channels?.standingschannel) {
-                                        const channel = client.channels.cache.get(channels.standingschannel);
-                                        if (channel) {
-                                            const eventForEmbed = { event: { name: event.name, tournament: { name: tournament.name, images: tournament.images || [] }, standings } };
-                                            const embed = await generateStandingsEmbed(eventForEmbed, `https://start.gg/${tournament.url}/event/${event.slug}`);
-                                            embed.setTitle(`🏆 Event Complete: ${tournament.name}`);
-                                            if (tImage) embed.setThumbnail(tImage);
-                                            await channel.send({ content: `**${event.name}** has finished!`, embeds: [embed] });
+                        if (isCompleted && !processedSets.has(completionKey)) {
+                            // First check DB to be sure (in case of restart)
+                            let completionRecord = await processedSetModel.findOne({ setKey: completionKey });
+
+                            if (!completionRecord) {
+                                const standingsQuery = `query EventStandings($id: ID) {
+                                    event(id: $id) {
+                                        id
+                                        standings(query: { page: 1, perPage: 8 }) { nodes { placement entrant { name participants { user { images { url } } } } } }
+                                    }
+                                }`;
+                                const standingsRes = await queryAPI(standingsQuery, { id: event.id });
+                                const standings = standingsRes?.data?.event?.standings;
+
+                                if (standings?.nodes?.length > 0) {
+                                    const guildMessages = [];
+
+                                    for (const leagueDoc of relevantLeagues) {
+                                        const channels = await channelModel.findOne({ guildid: leagueDoc.guildid });
+                                        if (channels?.standingschannel) {
+                                            const channel = client.channels.cache.get(channels.standingschannel);
+                                            if (channel) {
+                                                const eventForEmbed = { event: { name: event.name, tournament: { name: tournament.name, images: tournament.images || [] }, standings } };
+                                                const embed = await generateStandingsEmbed(eventForEmbed, `https://start.gg/${tournament.url}/event/${event.slug}`);
+                                                embed.setTitle(`🏆 Event Complete: ${tournament.name}`);
+                                                if (tImage) embed.setThumbnail(tImage);
+
+                                                try {
+                                                    const sent = await channel.send({ content: `**${event.name}** has finished!`, embeds: [embed] });
+                                                    guildMessages.push({
+                                                        guildId: leagueDoc.guildid,
+                                                        channelId: channel.id,
+                                                        messageId: sent.id
+                                                    });
+                                                } catch (e) {
+                                                    console.error(`[Live Loop] Failed to send standings to ${leagueDoc.guildid}:`, e);
+                                                }
+                                            }
                                         }
                                     }
+
+                                    // Save completion record
+                                    completionRecord = new processedSetModel({
+                                        setKey: completionKey,
+                                        eventId: Number(event.id),
+                                        state: 3,
+                                        summary: 'Event Complete',
+                                        guildMessages
+                                    });
+                                    await completionRecord.save();
+                                    processedSets.set(completionKey, 3);
+                                    console.log(`[Live Loop] Announced completion for event ${event.id}`);
                                 }
-                                announcedStandings.add(event.id);
+                            } else {
+                                // Already recorded in DB, update memory
+                                processedSets.set(completionKey, 3);
                             }
                         }
 
@@ -551,7 +585,7 @@ async function updateTournamentOverview(client, guildId, event, currentNowPlayin
                 { name: '✅ Recent Results', value: resultsText },
                 { name: '🔥 Top Upsets', value: upsetsText }
             )
-            .setFooter({ text: 'Powered by Armour Studios | Updates automatically', iconURL: footerIcon })
+            .setFooter({ text: 'Powered by NE Network | Updates automatically', iconURL: footerIcon })
             .setTimestamp();
 
         if (tImage) embed.setThumbnail(tImage);

@@ -40,7 +40,7 @@ module.exports = {
     switch (action) {
       case 'link':
         if (!url) {
-          return interaction.reply('Please provide your smash.gg profile URL. Format: `/account link url:https://smash.gg/user/your-profile`');
+          return interaction.reply('Please provide your start.gg profile URL. Format: `/account link url:https://start.gg/user/your-profile`');
         }
         let accountSlug = url;
         if (accountSlug.includes('smash.gg/user/') || accountSlug.includes('start.gg/user/')) {
@@ -77,7 +77,7 @@ module.exports = {
         try {
           const result = await accountModel.findOneAndDelete({ discordid: user.id });
           if (result) {
-            await interaction.reply({ content: '**Your Discord account and smash.gg account have been unlinked.**', ephemeral: true });
+            await interaction.reply({ content: '**Your Discord account and start.gg account have been unlinked.**', ephemeral: true });
             console.log(`unlinked ${user.tag}`);
           } else {
             await interaction.reply({ content: '**Your accounts are not currently linked.**', ephemeral: true });

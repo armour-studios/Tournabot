@@ -32,9 +32,7 @@ module.exports = {
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
     const linkRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setLabel('GitHub').setStyle(ButtonStyle.Link).setURL('https://github.com/armour-studios/Tournabot').setEmoji('💻'),
-      new ButtonBuilder().setLabel('Support Server').setStyle(ButtonStyle.Link).setURL('https://discord.gg/ssYPUk6Snc').setEmoji('🆘'),
-      new ButtonBuilder().setLabel('Vote').setStyle(ButtonStyle.Link).setURL('https://top.gg/bot/719283403698077708').setEmoji('🗳️')
+      new ButtonBuilder().setLabel('Support Server').setStyle(ButtonStyle.Link).setURL('https://discord.com/invite/G9uMk2N9bY').setEmoji('🆘')
     );
 
     const helpMessage = await (interaction.reply ?

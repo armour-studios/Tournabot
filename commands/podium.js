@@ -8,7 +8,7 @@ async function getPodiumEmbed(entity, url, isLeague = false) {
     return new EmbedBuilder()
       .setColor('#FF3399')
       .setDescription(isLeague ? 'No standings found for this league.' : 'No standings found for this event yet.')
-      .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon });
+      .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon });
   }
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -37,7 +37,7 @@ async function getPodiumEmbed(entity, url, isLeague = false) {
     .setDescription(`${!isLeague ? `**Event:** ${entity.name}\n\n` : ''}${podiumList}`)
     .setColor('#FF3399')
     .setThumbnail(thumbUrl)
-    .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
+    .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon })
     .setTimestamp();
 }
 

@@ -1,5 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } = require('discord.js');
-const { queryAPI, footerIcon } = require('../functions');
+const { queryAPI, footerIcon, extractSlug } = require('../functions');
 
 
 async function generateStandingsEmbed(data, url, type = 'event') {
@@ -11,7 +10,7 @@ async function generateStandingsEmbed(data, url, type = 'event') {
       .setColor('#FF0000')
       .setTitle('No Standings Available')
       .setDescription('Standings data is not available for this event yet.')
-      .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon });
+      .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon });
     return errorEmbed;
   }
 
@@ -27,7 +26,7 @@ async function generateStandingsEmbed(data, url, type = 'event') {
 
   const embed = new EmbedBuilder()
     .setAuthor({ name: isLeague ? 'League Standings' : 'Tournament Standings', iconURL: footerIcon })
-    .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
+    .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon })
     .setTitle(`${isLeague ? entity.name : entity.tournament.name}`)
     .setColor('#FF3399')
     .setThumbnail(thumbUrl)
@@ -128,17 +127,9 @@ module.exports = {
     const url = interaction.options.getString('url');
     if (!url) return interaction.reply('Please provide an event or league URL.');
 
-    let slug = url.replace('https://www.start.gg/', '').replace('https://start.gg/', '').split('?')[0];
-    if (slug.endsWith('/')) slug = slug.slice(0, -1);
+    let slug = extractSlug(url);
+    if (!slug) return interaction.reply('Invalid start.gg URL provided.');
 
-    // Strip common browser suffixes
-    const suffixes = ['/details', '/overview', '/standings', '/brackets', '/attendees', '/register', '/events', '/results'];
-    for (const s of suffixes) {
-      if (slug.endsWith(s)) {
-        slug = slug.replace(s, '');
-        break;
-      }
-    }
 
     const isLeague = url.includes('/league/');
     const isTournamentOnly = !url.includes('/event/') && !isLeague;

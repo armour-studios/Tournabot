@@ -23,7 +23,7 @@ module.exports = {
       const result = await accountModel.findOne({ discordid: user.id });
       if (!result) {
         return interaction.reply({
-          content: 'Tournament reminders require you to have your Discord and smash.gg account linked. Link your account with `/account link url:<your-profile-url>`.',
+          content: 'Tournament reminders require you to have your Discord and start.gg account linked. Link your account with `/account link url:<your-profile-url>`.',
           ephemeral: true
         });
       }
@@ -35,7 +35,7 @@ module.exports = {
         .setColor(newStatus ? '#43b581' : '#f04747')
         .setTitle('Tournament Reminders')
         .setDescription(`Your tournament reminders have been toggled **${newStatus ? 'ON' : 'OFF'}**!`)
-        .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+        .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
       await interaction.reply({ embeds: [embed] });
 

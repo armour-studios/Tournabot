@@ -1,7 +1,7 @@
 {
   "name": "tournabot",
   "version": "4.1.8",
-  "description": "Streamline smash.gg tournaments and improve user quality-of-life.",
+  "description": "Streamline start.gg tournaments and improve user quality-of-life.",
   "main": "index.js",
   "scripts": {
     "build": "npm install && npm update && echo Build complete.",

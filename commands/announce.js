@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, PermissionFlagsBits } = require('discord.js');
 const fetch = require('node-fetch');
 const urllib = require('urllib');
-const { convertEpoch, convertEpochToClock, queryAPI, footerIcon, startggIcon } = require('../functions');
+const { convertEpoch, convertEpochToClock, fetchEntity, extractSlug, footerIcon, startggIcon } = require('../functions');
 
 // MongoDB Models
 const channelModel = require('../database/models/channel');
@@ -53,43 +53,14 @@ module.exports = {
     const announceChannel = client.channels.cache.get(channelResult.channelid);
     if (!announceChannel) return interaction.editReply('I could not find the announcement channel. Please re-set it.');
 
-    let urlslug;
-    if (tournamentUrl.includes('smash.gg/tournament/') || tournamentUrl.includes('start.gg/tournament/')) {
-      urlslug = tournamentUrl.split('tournament/')[1].split('/')[0];
-    } else if (tournamentUrl.includes('smash.gg/') || tournamentUrl.includes('start.gg/')) {
-      // Handle short URLs or other formats - simple extraction for now
-      urlslug = tournamentUrl.split('/').pop();
-    } else {
-      return interaction.editReply('I could not recognize the URL provided.');
-    }
-
-    const query = `query TournamentQuery($slug: String) {
-      tournament(slug: $slug) {
-        name
-        registrationClosesAt
-        url
-        images { url type }
-        events {
-          name
-          startAt
-          checkInEnabled
-          checkInBuffer
-          checkInDuration
-        }
-        streams {
-          streamSource
-          streamName
-        }
-      }
-    }`;
-
     try {
-      const data = await queryAPI(query, { slug: urlslug });
-      if (!data || !data.data || !data.data.tournament) {
+      const entity = await fetchEntity(extractSlug(tournamentUrl));
+
+      if (!entity || entity.type !== 'tournament') {
         return interaction.editReply('I could not find the specified tournament.');
       }
 
-      const tournament = data.data.tournament;
+      const tournament = entity;
       const tzResult = await timezoneModel.findOne({ guildid: guildID });
       const cityTimezone = tzResult ? tzResult.timezone : 'America/Los_Angeles';
 
@@ -104,9 +75,11 @@ module.exports = {
       }).join('\n\n');
 
       const streams = tournament.streams
-        .filter(s => s.streamSource === 'TWITCH')
-        .map(s => `https://twitch.tv/${s.streamName}`)
-        .join('\n');
+        ? tournament.streams
+          .filter(s => s.streamSource === 'TWITCH')
+          .map(s => `https://twitch.tv/${s.streamName}`)
+          .join('\n')
+        : '';
 
       const announceMessageResult = await announcemessageModel.findOne({ guildid: guildID });
       let announceText = announceMessageResult ? announceMessageResult.announcemessage : `The registration for **${tournament.name}** is up:`;
@@ -116,16 +89,16 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setTitle(tournament.name)
-        .setURL(`https://start.gg/${tournament.url || 'tournament/' + urlslug}`)
-        .setColor('#FF3399') // Start.gg Red
+        .setURL(tournament.url.startsWith('http') ? tournament.url : `https://start.gg/${tournament.url}`)
+        .setColor('#FF3399')
         .setDescription(`${announceText}`)
         .addFields(
           { name: '📅 Registration Closes', value: `<t:${tournament.registrationClosesAt}:F> (<t:${tournament.registrationClosesAt}:R>)`, inline: true },
           { name: '📍 Status', value: 'Open', inline: true },
-          { name: '🏆 Events', value: eventsInfo }
+          { name: '🏆 Events', value: eventsInfo || 'No events listed.' }
         )
-        .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-        .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
+        .setImage(tournament.images?.find(i => i.type === 'banner')?.url || tournament.images?.[0]?.url)
+        .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon })
         .setTimestamp();
 
       if (streams) embed.addFields({ name: '📺 Streams', value: streams });
@@ -136,8 +109,6 @@ module.exports = {
       const langResult = await languageModel.findOne({ guildid: guildID });
       if (langResult && langResult.language !== 'en') {
         // Translation logic...
-        // Note: Translation usually replaces description. With fields, we might need to translate value of fields?
-        // For simple modernization, we'll stick to description translation or skip deep field translation for now to avoid breaking it.
       }
 
       await announceChannel.send({ content: finalContent, embeds: [embed] });

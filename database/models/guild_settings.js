@@ -2,9 +2,6 @@ const mongoose = require('mongoose');
 
 const guildSettingsSchema = new mongoose.Schema({
     guildId: { type: String, required: true, unique: true },
-    customName: String,
-    customLogo: String,
-    brandingColor: String,
     scrimSettings: {
         enabled: { type: Boolean, default: true },
         autoChannel: String,

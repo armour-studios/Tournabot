@@ -45,7 +45,7 @@ module.exports = {
                 .setAuthor({ name: branding.name, iconURL: branding.icon })
                 .setDescription(message)
                 .setTimestamp()
-                .setFooter({ text: 'Armour Studios Network', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
             if (image) embed.setImage(image);
             if (link) embed.addFields({ name: '🔗 Link', value: link });
@@ -97,7 +97,7 @@ module.exports = {
                 .setAuthor({ name: branding.name, iconURL: branding.icon })
                 .setThumbnail(entity.images?.find(i => i.type === 'profile' || i.type === 'main')?.url || branding.icon)
                 .setDescription(`**${branding.name}** is inviting you to check out this ${finalIsLeague ? 'league' : 'tournament'}!`)
-                .setFooter({ text: 'Armour Studios Network', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
             if (!finalIsLeague) {
                 embed.addFields(

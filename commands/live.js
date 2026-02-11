@@ -82,7 +82,7 @@ module.exports = {
                             { name: '🔥 Upset Tracker', value: 'High-upset match highlighting.' }
                         )
                         .setColor('#36FF7D')
-                        .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+                        .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
                     await interaction.editReply({ embeds: [embed] });
 
@@ -118,7 +118,7 @@ module.exports = {
                         const icon = l.type === 'league' ? '🏆' : (l.type === 'event' ? '🎯' : '🎮');
                         return `• ${icon} **${l.name || l.slug}** \`(${l.type})\``;
                     }).join('\n'))
-                    .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+                    .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
                 await interaction.reply({ embeds: [embed] });
             }

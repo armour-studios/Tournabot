@@ -49,7 +49,7 @@ const http = require('http');
 const port = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Armour Studios is online!\n');
+  res.end('NE Network is online!\n');
 }).listen(port, () => {
   console.log(`Health check server listening on port ${port}`);
 });
@@ -250,7 +250,7 @@ client.on('guildCreate', guild => {
   });
   const joinEmbed = new EmbedBuilder()
     .setColor('#222326')
-    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. Armour Studios is your all-in-one tournament management solution!`);
+    .setDescription(`Thank you for inviting me to ${guild.name}! You can do \`/help\` to get command info. NE Network is your all-in-one tournament management solution!`);
   defaultChannel.send({ embeds: [joinEmbed] }).catch(err => console.log(err));
   console.log('Added to: ' + guild.name);
 });

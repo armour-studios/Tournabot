@@ -97,7 +97,7 @@ module.exports = {
                 .setTitle(`📊 ${game.replace('_', ' ').toUpperCase()} Queue: ${userRank}`)
                 .setColor('#FF3399')
                 .setDescription(`There are currently **${queue.length}/6** players in the **${userRank}** queue.`)
-                .setFooter({ text: 'Armour Studios Pro Queue', iconURL: footerIcon })
+                .setFooter({ text: 'NE Network Pro Queue', iconURL: footerIcon })
                 .setTimestamp();
 
             await interaction.editReply({ embeds: [embed] });
@@ -145,7 +145,7 @@ async function checkRankedMatchmaking(client, game, rank) {
                 { name: 'Match ID', value: `\`${matchId}\``, inline: false },
                 { name: 'Instructions', value: 'Create a private match and invite your teammates. Report the score using `/scrim report` when finished.' }
             )
-            .setFooter({ text: 'Armour Studios | Use /scrim report to submit results', iconURL: footerIcon });
+            .setFooter({ text: 'NE Network | Use /scrim report to submit results', iconURL: footerIcon });
 
         for (const p of players) {
             try {

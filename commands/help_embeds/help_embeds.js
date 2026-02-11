@@ -4,13 +4,13 @@ const { footerIcon } = require('../../functions');
 const generateHelpSelection = index => {
   const descriptions = [`
 ➡ **Accounts**
-Armour Studios handles account linking between start.gg and Discord.
+NE Network handles account linking between start.gg and Discord.
 
 ➡ **Teams & Scrims**
 Create a team, join scrims, and climb the global leaderboards.
 
 ➡ **Global Broadcasts**
-Share your tournament updates across the Armour Studios network.
+Share your tournament updates across the NE Network.
 
 ➡ **Tournament Reminders**
 Automatic reminders for your tournaments an hour before they begin.
@@ -44,28 +44,25 @@ Support server, developer contact, and open-source info.
 const generateAccountsEmbed = index => {
   const label = '**Accounts**';
   const descriptions = [`
-> \`/account link <smash.gg profile URL>\`
+> \`/account link <start.gg profile URL>\`
 
-Links your smash.gg account and Discord account together, allowing Armour Studios to do tasks between Discord and smash.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
+Links your start.gg account and Discord account together, allowing NE Network to do tasks between Discord and start.gg. All information stored is public (Discord tag, Discord ID, and URL slug).
 
-Please read [this](https://help.smash.gg/en/articles/4100961-user-profiles) if you do not know how/where to find your profile.
+Please read [this](https://help.start.gg/en/articles/4100961-user-profiles) if you do not know how/where to find your profile.
 `, `
 > \`/account unlink\`
 
-Unlinks your smash.gg account and Discord account.
+Unlinks your start.gg account and Discord account.
 `, `
 > \`/account status <Discord tag with/without @ OR tournament URL/short URL>\`
 
 Checks if a user as linked their accounts OR checks whether each attendee has linked their accounts for a given tournament. Providing no arguments will give you your own account status.
 `];
-  const examples = ['https://i.imgur.com/uvWQE1R.png', 'https://i.imgur.com/LqgWaWn.png', 'https://i.imgur.com/mnWZwki.png'];
-
   const accountsEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
-    .setImage(examples[index])
     .setFooter({ text: `Command ${index + 1} of 3`, iconURL: 'https://i.imgur.com/gUwhkw3.png' });
 
   if (index === 2) accountsEmbed.setThumbnail(footerIcon);
@@ -80,18 +77,15 @@ const generateReminderEmbed = index => {
 
 Toggles your tournament reminders. As long as your accounts are linked prior to toggling on, you will always be automatically messaged an hour before any tournament you sign-up for. You can go to the next page to see what the reminders look like.
 
-*PLEASE NOTE: By toggling on tournament reminders, you consent to Armour Studios direct messaging you on Discord automatically.*
+*PLEASE NOTE: By toggling on tournament reminders, you consent to NE Network direct messaging you on Discord automatically.*
 `, `
-Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with Armour Studios, it cannot message you.
+Tournament reminders include basic tournament/event information, all stored in a singular embed. Keep in mind that if you are not in at least one server with NE Network, it cannot message you.
 `];
-  const examples = ['https://i.imgur.com/XNFHbeJ.png', 'https://i.imgur.com/noJpDgz.png'];
-
   const reminderEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
-    .setImage(examples[index])
     .setFooter({ text: `Page ${index + 1} of 2`, iconURL: footerIcon });
 
   return reminderEmbed;
@@ -109,7 +103,6 @@ Details and sets from a user's three latest tournaments. Providing no arguments 
 
 Please keep in mind that the search algorithm will find up to 15 tournaments, including admined/spectated tournaments. It may not show three tournaments if a user has admined/spectated multiple tournaments.
 `)
-    .setImage('https://i.imgur.com/G4LzGzX.png')
     .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
   return accountsEmbed;
 }
@@ -119,29 +112,24 @@ const generateDQPingingEmbed = index => {
   const descriptions = [`
 > \`/set dqpingchannel <#channel>\`
 
-Before beginning DQ pinging, you need to set the channel that Armour Studios will ping users in. This allows you to run \`/dq ping\` in a separate channel.
+Before beginning DQ pinging, you need to set the channel that NE Network will ping users in. This allows you to run \`/dq ping\` in a separate channel.
 `, `
 > \`/dq ping <tournament URL/start.gg short URL> <event_number (optional)> <event_name (optional)>\`
 
 Pings users in the DQ pinging channel a minute after their set is called (a minute after DQ timer has started). Specifying the event name or number as the second argument will ping only for that event, otherwise pinging will happen across all events (check example on the right to see how events are numbered). Pinging will automatically stop after six hours or when the tournament has ended.
 
-If your Discord account is not public on your start.gg profile and your accounts have not been linked through Armour Studios, your start.gg username will be shown in bold instead.
+If your Discord account is not public on your start.gg profile and your accounts have not been linked through NE Network, your start.gg username will be shown in bold instead.
 `, `
 > \`/dq stop\`
 
 Stops DQ pinging.
 `];
-  const examples = ['https://i.imgur.com/5swyvDE.png', 'https://i.imgur.com/PttOLYc.png', 'https://i.imgur.com/KeVuRDW.png'];
-
   const DQPingingEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
-    .setImage(examples[index])
     .setFooter({ text: `Command ${index + 1} of 3`, iconURL: footerIcon });
-
-  if (index === 1) DQPingingEmbed.setThumbnail('https://i.imgur.com/Br9Vcmo.png');
 
   return DQPingingEmbed;
 }
@@ -151,7 +139,7 @@ const generateAnnounceEmbed = index => {
   const descriptions = [`
 > \`/set announcechannel <#channel>\`
 
-Before announcing a tournament, you need to set the channel that Armour Studios will announce in. This allows you to run \`/announce\` in a separate channel.
+Before announcing a tournament, you need to set the channel that NE Network will announce in. This allows you to run \`/announce\` in a separate channel.
 `, `
 > \`/set announcemessage <message (optional)>\`
 
@@ -168,7 +156,7 @@ Announcements are formatted as such:
 <check-in time (if enabled)>
 
 <streams>\`\`\`
-Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by Armour Studios.
+Keep in mind that \`<announce message>\` is the message that YOU specify. The rest is of the announcement is automatically done by NE Network.
 `, `
 > \`/set pingrole <@role/role name (optional)>\`
 
@@ -178,18 +166,12 @@ Sets the role to ping when announcing a tournament. Providing no arguments will 
 
 Announces a given tournament with registration/event times, streams, and additional info. Using the short URL will always send the latest tournament linked to the URL. 
 `];
-  const examples = ['https://i.imgur.com/6L75GCI.png', 'https://i.imgur.com/YVDnWo0.png', 'https://i.imgur.com/IH6PZjD.png', 'https://i.imgur.com/TXZYBZD.png'];
-  const thumbnails = ['https://i.imgur.com/wZ9IbTf.png', 'https://i.imgur.com/TO7tlrA.png', 'https://i.imgur.com/OpbRMIM.png'];
-
   const announceEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
-    .setImage(examples[index])
     .setFooter({ text: `Command ${index + 1} of 4`, iconURL: footerIcon });
-
-  if (index > 0) announceEmbed.setThumbnail(thumbnails[index - 1]);
 
   return announceEmbed;
 }
@@ -199,22 +181,20 @@ const generateLocalizationEmbed = index => {
   const descriptions = [`
 > \`/set timezone <city (optional)>\`
 
-Sets the timezone that Armour Studios uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
+Sets the timezone that NE Network uses, altering the timestamps shown in tournament reminders, \`/results\`, and \`/announce\`. Providing no arguments will reset the timezone to \`America/Los_Angeles\` (PST/PDT).
 
 Currently supported cities: \`America/Los_Angeles\`, \`America/Phoenix\`, \`America/Denver\`, \`America/Regina\`, \`America/Chicago\`, \`America/New_York\`, \`Pacific/Honolulu\`
 `, `
 > \`/set language <code (optional)>\`
 
-Sets the language that Armour Studios uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
+Sets the language that NE Network uses. Language localization does not apply to DQ Pinging, User Tournament Results, and some other messages due to formatting issues and restrictions. Providing no arguments will reset the language to \`en\`.
 `];
-  const examples = ['https://i.imgur.com/OOFBH0O.png', 'https://i.imgur.com/TEpnXU0.png'];
 
   const localizationEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
     .setDescription(`
 ${label}
 ${descriptions[index]}`)
-    .setImage(examples[index])
     .setFooter({ text: `Command ${index + 1} of 2`, iconURL: footerIcon });
 
   return localizationEmbed;
@@ -233,7 +213,6 @@ Searches for upcoming tournaments by game. The \`<game>\` argument is not case-s
 
 Currently supported games: \`Super Smash Bros. Ultimate\`, \`Valorant\`
 `)
-    .setImage('https://i.imgur.com/nesqtNb.png')
     .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
 
   return searchEmbed;
@@ -247,11 +226,10 @@ const generatePrefixEmbed = index => {
 
 > \`t!set prefix <prefix (optional)>\`
 
-Assign a custom prefix for Armour Studios legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
+Assign a custom prefix for NE Network legacy commands. Please note that prefixes cannot contain any spaces. Providing no arguments will reset the prefix to \`t!\`.
 
 \`t!set prefix <prefix (optional)>\` and \`t!help\` can always be run with the original prefix, \`t!\`.
 `)
-    .setImage('https://i.imgur.com/uLWYdgM.png')
     .setFooter({ text: `Command 1 of 1`, iconURL: footerIcon });
   return prefixEmbed;
 }
@@ -259,8 +237,8 @@ Assign a custom prefix for Armour Studios legacy commands. Please note that pref
 const generateInfoEmbed = index => {
   const infoEmbed = new EmbedBuilder()
     .setColor('#00A3FF')
-    .setDescription(`Armour Studios is your all-in-one tournament management solution powered by Start.gg. Built by Armour Studios for the competitive gaming community.`)
-    .setFooter({ text: `Armour Studios`, iconURL: footerIcon });
+    .setDescription(`NE Network is your all-in-one tournament management solution powered by Start.gg. Built by NE Network for the competitive gaming community.`)
+    .setFooter({ text: `NE Network Bot`, iconURL: footerIcon });
 
   return infoEmbed;
 }
@@ -299,7 +277,7 @@ const generateBroadcastEmbed = index => {
 > \`/broadcast toggle\`
 Enable or disable cross-server announcements for your tournaments.
 
-When enabled, your tournament starts and major updates will be broadcasted to other servers in the Armour Studios network.
+When enabled, your tournament starts and major updates will be broadcasted to other servers in the NE Network.
 `];
   const broadcastEmbed = new EmbedBuilder()
     .setColor('#00A3FF')

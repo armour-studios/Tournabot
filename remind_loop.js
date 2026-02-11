@@ -120,7 +120,7 @@ async function remindLoop(client) {
         { name: 'Events', value: events || 'N/A', inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+      .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
     if (streams) embed.addFields({ name: 'Streams', value: streams });
 

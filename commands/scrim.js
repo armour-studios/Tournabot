@@ -1,5 +1,5 @@
 const { EmbedBuilder, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { footerIcon, broadcastAlert } = require('../functions');
+const { footerIcon, broadcastAlert, getBranding } = require('../functions');
 const scrimProfileModel = require('../database/models/scrim_profile');
 const scrimQueueModel = require('../database/models/scrim_queue');
 const scrimMatchModel = require('../database/models/scrim_match');
@@ -155,7 +155,7 @@ module.exports = {
                     { name: '🚀 Rocket League', value: `**Rank:** ${profile.stats.rocket_league.rank}\n**ELO:** ${profile.stats.rocket_league.elo}\n**W/L:** ${profile.stats.rocket_league.wins}/${profile.stats.rocket_league.losses}`, inline: true },
                     { name: '🛡️ Team', value: team ? `**${team.name}**` : 'No Team', inline: true }
                 )
-                .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
             await interaction.editReply({ embeds: [embed] });
 
@@ -195,7 +195,7 @@ module.exports = {
                     const stats = p.stats?.[game] || { elo: 1000, rank: 'Rank E' };
                     return `${medal} <@${p.userId}> - **${stats.elo} ELO** (${stats.rank})`;
                 }).join('\n') : 'No ranked players yet.')
-                .setFooter({ text: 'Armour Studios Rankings', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network Rankings', iconURL: footerIcon });
 
             await interaction.editReply({ embeds: [embed] });
 
@@ -214,7 +214,7 @@ module.exports = {
                     const stats = t.stats?.[game] || { elo: 1000, rank: 'Rank E' };
                     return `${medal} **${t.name}** - **${stats.elo} ELO** (${stats.rank})`;
                 }).join('\n') : 'No ranked teams yet.')
-                .setFooter({ text: 'Armour Studios Team Rankings', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network Team Rankings', iconURL: footerIcon });
 
             await interaction.editReply({ embeds: [embed] });
 
@@ -251,7 +251,7 @@ module.exports = {
                 .setTitle('🕒 Scrimmage Queue Status')
                 .setColor('#36FF7D')
                 .setDescription(queue.length ? queue.map(q => `• **${q.teamName || 'Solo'}** joined <t:${Math.floor(q.joinedAt.getTime() / 1000)}:R> (ELO: ${q.elo || 1000})`).join('\n') : 'The queue is currently empty.')
-                .setFooter({ text: 'Armour Studios Scrim Finder', iconURL: footerIcon });
+                .setFooter({ text: 'NE Network Scrim Finder', iconURL: footerIcon });
 
             await interaction.editReply({ embeds: [embed] });
 
@@ -259,7 +259,7 @@ module.exports = {
             const guideEmbed = new EmbedBuilder()
                 .setTitle('📖 Scrim System Guide')
                 .setColor('#FF3399')
-                .setDescription('Welcome to the Armour Studios Scrim System! Here is how it works:')
+                .setDescription('Welcome to the NE Network Scrim System! Here is how it works:')
                 .addFields(
                     { name: '🛡️ Teams', value: 'Create a team with `/scrim team create`. Invite players with `/scrim team invite`.' },
                     { name: '🕒 Queuing', value: 'Join the queue with `/scrim queue`. Once an opponent is found, you will be notified via DM/Channel.' },
@@ -269,6 +269,60 @@ module.exports = {
                 .setFooter({ text: 'Professional Scrim Management', iconURL: footerIcon });
 
             await interaction.reply({ embeds: [guideEmbed] });
+
+        } else if (subcommand === 'seeking') {
+            await interaction.deferReply({ ephemeral: true });
+
+            // Check cooldown or permissions? For now open to all.
+            const game = interaction.options.getString('game');
+            const time = interaction.options.getString('time');
+            const rank = interaction.options.getString('rank');
+            const mmr = interaction.options.getString('mmr');
+            const notes = interaction.options.getString('notes') || 'No notes provided.';
+            const contactUser = interaction.options.getUser('contact') || interaction.user;
+
+            const branding = await getBranding(interaction.guild.id);
+
+            // Format the alert details
+            const details = `**Game:** ${game.replace('_', ' ')}\n**Time:** ${time}\n**Rank:** ${rank}\n**MMR:** ${mmr}\n**Notes:** ${notes}\n\n**Contact:** <@${contactUser.id}> to set it up!`;
+
+            await broadcastAlert(client, interaction.guild.id, 'scrim', details);
+            await interaction.editReply('✅ **Looking for Scrim** alert sent to all partnered servers!');
+
+        } else if (subcommandGroup === 'debug') {
+            // Basic auth check: only team owner/admin? Or open for user testing as requested?
+            // User asked "how do i test", implying they want to use it. 
+            // We'll restrict to Administrator or the Bot Owner for safety if this was public, 
+            // but for this private bot, we'll allow it or just check Permissions.
+            if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+                return interaction.reply({ content: 'Debug commands are for Admins only.', ephemeral: true });
+            }
+
+            if (subcommand === 'queue-add') {
+                await interaction.deferReply({ ephemeral: true });
+                const name = interaction.options.getString('name');
+
+                // Create fake queue entry
+                await new scrimQueueModel({
+                    userId: 'FAKE-' + Date.now(), // Fake ID
+                    guildId: interaction.guild.id,
+                    game: 'rocket_league',
+                    elo: 1000,
+                    teamName: name + ' (BOT)',
+                    meta: { rank: 'Test Rank' },
+                    joinedAt: new Date()
+                }).save();
+
+                await interaction.editReply(`✅ Added fake team **${name} (BOT)** to the queue.`);
+
+                // Trigger matchmaking check
+                await checkMatchmaking(client, 'rocket_league');
+
+            } else if (subcommand === 'queue-clear') {
+                await interaction.deferReply({ ephemeral: true });
+                await scrimQueueModel.deleteMany({});
+                await interaction.editReply('🗑️ Scrim queue cleared.');
+            }
 
         } else if (subcommandGroup === 'team') {
             if (subcommand === 'create') {
@@ -494,7 +548,7 @@ async function checkMatchmaking(client, game) {
                 { name: 'Match ID', value: `\`${matchId}\``, inline: false },
                 { name: 'VC Coordination', value: 'Use the mentions above to find each other in VC or send a DM!' }
             )
-            .setFooter({ text: 'Armour Studios | Use /scrim report to submit results', iconURL: footerIcon });
+            .setFooter({ text: 'NE Network | Use /scrim report to submit results', iconURL: footerIcon });
 
         for (const p of players) {
             try {
@@ -509,7 +563,7 @@ async function createTeamEmbed(team, client, type = 'stats') {
     const embed = new EmbedBuilder()
         .setTitle(`🛡️ Team: ${team.name}`)
         .setColor('#FF3399')
-        .setFooter({ text: 'Armour Studios Pro Teams', iconURL: footerIcon });
+        .setFooter({ text: 'NE Network Pro Teams', iconURL: footerIcon });
 
     if (type === 'stats') {
         const stats = team.stats.rocket_league;

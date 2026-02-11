@@ -191,7 +191,7 @@ async function announceTournament(client, guildID, tournament, leagueName, hypeT
                 { name: '🏆 Events', value: eventsInfo }
             )
             .setImage(tournament.images?.find(i => i.type === 'banner')?.url)
-            .setFooter({ text: `Powered by Armour Studios | ${tournament.name}`, iconURL: footerIcon })
+            .setFooter({ text: `Powered by NE Network | ${tournament.name}`, iconURL: footerIcon })
             .setTimestamp();
 
         if (streams) embed.addFields({ name: '📺 Streams', value: streams });

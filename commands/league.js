@@ -4,7 +4,7 @@ const leagueModel = require('../database/models/league');
 
 module.exports = {
     name: 'league',
-    description: 'Manage automated league announcements.',
+    description: 'Manage automated tournament & league announcements.',
     async autocomplete(interaction, client) {
         const focusedValue = interaction.options.getFocused();
         const leagues = await leagueModel.find({ guildid: interaction.guild.id });
@@ -26,13 +26,27 @@ module.exports = {
 
             if (subcommand === 'link') {
                 const url = interaction.options.getString('url');
+                // Use extractSlug for robust parsing
                 const discoverySlug = extractSlug(url);
+
                 if (!discoverySlug) return interaction.reply({ content: 'Invalid URL. Please provide a valid start.gg URL.', ephemeral: true });
 
                 await interaction.deferReply();
 
-                // Extract core slug
-                const coreSlug = discoverySlug;
+                // Extract core slug (remove type prefixes if present for consistency, though fetchEntity might handle them)
+                // Existing logic stored "league/slug" or "tournament/slug"?
+                // Looking at lines 61, it stores 'league' or 'tournament' in distinct field.
+                // It stores `slug: coreSlug`.
+
+                // Let's normalize. extractSlug returns "type/slug".
+                // We want just the "slug" part for the DB if that's how it was done, 
+                // OR we accept "type/slug" if the new functions expect it.
+                // Line 46/47 queryAPI uses `slug: coreSlug` with `league(slug: $slug)`. 
+                // Start.gg API expects just the slug part (e.g. "rlcs-21-22") NOT "league/rlcs-21-22".
+
+                const parts = discoverySlug.split('/');
+                const coreSlug = parts.length > 1 ? parts[1] : parts[0];
+                const isLeague = discoverySlug.startsWith('league/') || url.includes('/league/');
 
                 // Check if already linked
                 const existing = await leagueModel.findOne({ guildid: guildID, slug: coreSlug });
@@ -41,7 +55,6 @@ module.exports = {
                 }
 
                 // Validation query
-                const isLeague = url.includes('/league/');
                 const validationQuery = isLeague
                     ? `query L($slug: String) { league(slug: $slug) { id name } }`
                     : `query T($slug: String) { tournament(slug: $slug) { id name } }`;
@@ -66,7 +79,7 @@ module.exports = {
                         .setTitle('✅ League/Tournament Linked')
                         .setDescription(`Successfully linked **${entity.name}**! New tournaments will be announced automatically in the designated channel.`)
                         .setColor('#36FF7D')
-                        .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+                        .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
                     await interaction.editReply({ embeds: [embed] });
 
@@ -77,17 +90,59 @@ module.exports = {
 
             } else if (subcommand === 'unlink') {
                 const urlOrSlug = interaction.options.getString('url_or_slug');
-                let slug = urlOrSlug.replace('https://www.start.gg/', '').replace('https://start.gg/', '').split('?')[0];
-                slug = slug.replace('league/', '').replace('tournament/', '').split('/')[0];
+                const extracted = extractSlug(urlOrSlug);
+                // Fallback to raw input if extractSlug returns null (maybe they typed just "slug")
+                const rawSlug = extracted || urlOrSlug;
 
-                const result = await leagueModel.findOneAndDelete({ guildid: guildID, slug: slug });
+                // Remove prefixes if present to get core slug
+                const parts = rawSlug.split('/');
+                const coreSlug = parts.length > 1 ? parts[1] : parts[0];
+
+                const result = await leagueModel.findOneAndDelete({ guildid: guildID, slug: coreSlug });
 
                 if (result) {
-                    await interaction.reply(`Successfully unlinked **${result.name || slug}**.`);
+                    await interaction.reply(`Successfully unlinked **${result.name || coreSlug}**.`);
                 } else {
-                    await interaction.reply({ content: `Could not find **${slug}** linked to this server.`, ephemeral: true });
+                    await interaction.reply({ content: `Could not find **${coreSlug}** linked to this server.`, ephemeral: true });
                 }
 
+            } else if (subcommand === 'schedule') {
+                const urlOrSlug = interaction.options.getString('url_or_slug');
+                const intervalsStr = interaction.options.getString('hours_before');
+
+                // Parse intervals
+                const intervals = intervalsStr.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0).sort((a, b) => b - a);
+
+                if (intervals.length === 0) {
+                    return interaction.reply({ content: 'Please provide valid comma-separated hours (e.g. `24, 1`)', ephemeral: true });
+                }
+
+                // Extract slug
+                const extracted = extractSlug(urlOrSlug);
+                const rawSlug = extracted || urlOrSlug;
+                const parts = rawSlug.split('/');
+                const coreSlug = parts.length > 1 ? parts[1] : parts[0];
+
+                const leagueDoc = await leagueModel.findOne({ guildid: guildID, slug: coreSlug });
+                if (!leagueDoc) {
+                    return interaction.reply({ content: `Could not find **${coreSlug}** linked to this server.`, ephemeral: true });
+                }
+
+                leagueDoc.announcementSettings = intervals;
+                // Reset announced history for this league so new intervals can trigger?
+                // Probably safer to keep history, but if they add a new interval (e.g. 0.5h), it should trigger.
+                // The loop logic checks `if (sentIntervals.includes(interval)) continue;`
+                // So adding new intervals works fine. Removing old ones just stops them.
+                await leagueDoc.save();
+
+                const embed = new EmbedBuilder()
+                    .setTitle('🕒 Schedule Updated')
+                    .setDescription(`Announcement schedule for **${leagueDoc.name || coreSlug}** has been updated.`)
+                    .addFields({ name: 'New Intervals', value: intervals.map(h => `${h} hours before`).join('\n') })
+                    .setColor('#36FF7D')
+                    .setFooter({ text: 'NE Network', iconURL: footerIcon });
+
+                await interaction.reply({ embeds: [embed] });
             } else if (subcommand === 'list') {
                 const links = await leagueModel.find({ guildid: guildID });
 
@@ -98,8 +153,11 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setTitle('📋 Linked Leagues & Tournaments')
                     .setColor('#FF3399')
-                    .setDescription(links.map(l => `• **${l.name || l.slug}** \`(${l.type})\``).join('\n'))
-                    .setFooter({ text: 'Armour Studios', iconURL: footerIcon });
+                    .setDescription(links.map(l => {
+                        const intervals = l.announcementSettings && l.announcementSettings.length > 0 ? l.announcementSettings.join(', ') + 'h' : 'Default (168, 72, 24, 1h)';
+                        return `• **${l.name || l.slug}** \`(${l.type})\`\n  └ Schedule: ${intervals}`;
+                    }).join('\n'))
+                    .setFooter({ text: 'NE Network', iconURL: footerIcon });
 
                 await interaction.reply({ embeds: [embed] });
             }

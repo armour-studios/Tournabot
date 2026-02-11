@@ -2,7 +2,7 @@
 
 ![Logo](https://i.imgur.com/UN1gKXO.png)
 
-TournaBot is a Discord bot designed to streamline [smash.gg](https://smash.gg/) tournaments and improve user quality-of-life through specialized commands - built on [Node.js](https://nodejs.org/en/) and [Discord.js](https://discord.js.org/#/).
+TournaBot is a Discord bot designed to streamline [start.gg](https://start.gg/) tournaments and improve user quality-of-life through specialized commands - built on [Node.js](https://nodejs.org/en/) and [Discord.js](https://discord.js.org/#/).
 
 Please check out [TournaBot's top.gg page](https://top.gg/bot/719283403698077708) and the [support/development Discord server](https://discord.gg/ssYPUk6Snc) if you need any help. You can find the [invite link](https://discord.com/oauth2/authorize?client_id=719283403698077708&scope=bot&permissions=268659832) here.
 
@@ -82,7 +82,7 @@ The following environment variables are required to run TournaBot locally:
 
 - `PREFIX` - The prefix used for each command
 - `DISCORDTOKEN` - A valid Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
-- `SMASHGGTOKEN` - a valid developer token used to access the [smash.gg API](https://developer.smash.gg). You can create a developer token through **Developer Settings** found when clicking your profile picture on the bottom left of the smash.gg website.
+- `SMASHGGTOKEN` - a valid developer token used to access the [start.gg API](https://developer.start.gg). You can create a developer token through **Developer Settings** found when clicking your profile picture on the bottom left of the start.gg website.
 - `MONGOPASS` - The connection string used to authenticate into a MongoDB database.
 
 Note that within the original production code, `ALTDISCORDTOKEN` is used to authenticate into a dummy bot that is used for local development. It is not required for testing locally.

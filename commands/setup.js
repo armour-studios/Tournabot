@@ -87,7 +87,7 @@ module.exports = {
             const setupEmbed = new EmbedBuilder()
                 .setColor('#36FF7D')
                 .setTitle('✅ Server Setup Complete!')
-                .setDescription('Armour Studios has created and configured all tournament channels.')
+                .setDescription('NE Network has created and configured all tournament channels.')
                 .addFields(
                     {
                         name: '📢 Announcements',
@@ -125,7 +125,7 @@ module.exports = {
                     value: `**1.** Link a league: \`/league link <url>\`\n**2.** Announce a tournament: \`/announce <url>\`\n**3.** Generate seeds: \`/seed generate <event-url>\`\n**4.** Search upcoming: \`/search <game>\`\n\n📚 Full commands: \`/help\``,
                     inline: false
                 })
-                .setFooter({ text: 'Powered by Armour Studios', iconURL: footerIcon })
+                .setFooter({ text: 'Powered by NE Network', iconURL: footerIcon })
                 .setTimestamp();
 
             await interaction.editReply({ embeds: [setupEmbed] });
@@ -133,13 +133,13 @@ module.exports = {
             // Send welcome message to announcements channel
             const welcomeEmbed = new EmbedBuilder()
                 .setColor('#FF3399')
-                .setTitle('👋 Welcome to Armour Studios!')
+                .setTitle('👋 Welcome to NE Network!')
                 .setDescription('Your all-in-one tournament management solution for competitive gaming.')
                 .addFields(
                     { name: '🎮 Features', value: '• Automated league tracking\n• Tournament announcements\n• Live match feeds\n• DQ management\n• Seed generation (Rocket League)\n• Results tracking', inline: true },
                     { name: '⚙️ Getting Started', value: '• All channels are configured\n• Use `/help` for command list\n• Set ping role with `/set pingrole`\n• Customize timezone with `/set timezone`', inline: true }
                 )
-                .setFooter({ text: 'Built by Armour Studios', iconURL: footerIcon })
+                .setFooter({ text: 'Built by NE Network', iconURL: footerIcon })
                 .setTimestamp();
 
             await channels.announcements.send({ embeds: [welcomeEmbed] });
